@@ -43,8 +43,8 @@ def chart(p):
         +vl(c["fb"],78,f"mean fb {c['fb']:.1f}",f"归一化均值 {c['fb']:.1f}","link2",'stroke-dasharray="6 4"'))
     axl=(f'<text x="{W-RM}" y="166" text-anchor="end" class="ax i-en">normalised strength f<tspan class="sb">b</tspan> (N/mm²)</text>'
          f'<text x="{W-RM}" y="166" text-anchor="end" class="ax i-zh">归一化抗压强度 f<tspan class="sb">b</tspan> (N/mm²)</text>')
-    return (f'<svg viewBox="0 0 {W} {H}" role="img"><line x1="{LM}" y1="130" x2="{W-RM}" y2="130" class="axl"/>'
-        f'{ticks}{axl}{lines}{dots}</svg>')
+    return (f'<div class="cw"><svg viewBox="0 0 {W} {H}" role="img"><line x1="{LM}" y1="130" x2="{W-RM}" y2="130" class="axl"/>'
+        f'{ticks}{axl}{lines}{dots}</svg></div>')
 
 # ---------------- downloads ----------------
 GROUPS={"01-china-gb":("China GB · HBQI","国标 · 湖北质检院","gb"),
@@ -163,7 +163,7 @@ CSS=r"""
 --line:#e4e4de;--acc:#137a45;--accS:#e7f3ec;--err:#b3261e;--errS:#faecea;--amb:#8a5a00;--ambS:#fbf3dd;
 --blu:#1a4f9c;--bluS:#e9effb;--grey:#82827b;--greyS:#efefeb;--data:#2a78d6}
 *{box-sizing:border-box;margin:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:clip}
 body{font-family:"Segoe UI",Inter,"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6}
 html[lang=en] .i-zh{display:none}html[lang=zh] .i-en{display:none}
 svg .i-zh{display:none}html[lang=zh] svg .i-zh{display:inline}html[lang=zh] svg .i-en{display:none}
@@ -172,10 +172,11 @@ svg .i-zh{display:none}html[lang=zh] svg .i-zh{display:inline}html[lang=zh] svg 
 .bar{position:sticky;top:0;z-index:20;background:rgba(247,247,244,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .bar .wrap{display:flex;align-items:center;gap:26px;height:54px}
 .wm{font-weight:800;letter-spacing:-.02em}.wm em{color:var(--acc);font-style:normal}
-.bar nav{display:flex;gap:20px;flex:1;overflow-x:auto;white-space:nowrap}
+.bar nav{display:flex;gap:20px;flex:1;min-width:0;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.bar nav::-webkit-scrollbar{display:none}
 .bar nav a{font-size:.84rem;font-weight:600;color:var(--mut);text-decoration:none;padding:4px 0;border-bottom:2px solid transparent}
 .bar nav a.on{color:var(--ink);border-color:var(--acc)}
-.lang{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;font-size:.78rem;font-weight:700}
+.lang{display:flex;flex-shrink:0;border:1px solid var(--line);border-radius:99px;overflow:hidden;font-size:.78rem;font-weight:700}
 .lang button{border:0;background:#fff;color:var(--mut);padding:5px 13px;cursor:pointer}
 .lang button.on{background:var(--panel);color:#fff}
 /* hero */
@@ -235,7 +236,10 @@ td.hl,tr:hover td{background:#f6f8f4}td.e:is(.hl),tr:hover td.e{background:#f6e3
 .snav button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 14px;font-size:.82rem;font-weight:650;cursor:pointer;color:var(--ink)}
 .snav button:disabled{opacity:.35;cursor:default}
 /* charts */
+.cw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 svg{width:100%;height:auto;margin-top:6px}
+.shint{display:none;align-items:center;gap:6px;font-size:.78rem;color:var(--mut);margin:0 2px 10px}
+.shint::before,.shint::after{content:"";flex:1;height:1px;background:var(--line)}
 .dot{fill:var(--data);fill-opacity:.82;stroke:#fff;stroke-width:1.5}
 .axl,.tk{stroke:#c9c9c3}.ax{font-size:11px;fill:var(--mut)}.sb{font-size:9px}
 .rl{font-size:11.5px;font-weight:650}
@@ -259,7 +263,30 @@ svg{width:100%;height:auto;margin-top:6px}
 .fs{font-size:.72rem;color:var(--grey)}
 footer{margin-top:70px;border-top:1px solid var(--line);padding:26px 0 50px;color:var(--mut);font-size:.8rem}
 footer a{color:var(--acc)}
-@media(max-width:820px){.stepper{grid-template-columns:1fr}.rail{position:static;flex-direction:row;flex-wrap:wrap}.rail .all{padding:0}}
+@media(max-width:820px){.stepper{grid-template-columns:1fr}.stepper>div{min-width:0}.rail{position:static;flex-direction:row;flex-wrap:wrap}.rail .all{padding:0}}
+@media(max-width:640px){
+ .wrap{padding:0 15px}
+ .hero{padding:44px 0 34px}
+ .hero h1{margin:12px 0 8px}
+ .bar .wrap{gap:14px;height:50px}
+ .bar nav{gap:16px}
+ section{padding:46px 0 6px}
+ h2{font-size:1.28rem}
+ .sub{font-size:.86rem}
+ table{min-width:816px;font-size:.8rem}
+ th,td{padding:8px 9px}
+ th.rh{width:140px}
+ td.ph{font-size:.8rem}
+ td.ph i{font-size:.68rem}
+ td i{font-size:.7rem}
+ .b{font-size:.6rem;padding:1px 6px;margin-left:4px}
+ .shint{display:flex}
+ .dlgrid{grid-template-columns:1fr}
+ .stepper{gap:14px}
+ .cw svg{min-width:520px}
+ .panels .step{padding:18px 16px}
+ .f{font-size:.78rem}
+}
 @media print{.bar,.snav,.rail .all{display:none}.panels .step{display:block!important}}
 """
 
@@ -405,6 +432,7 @@ HTML=("""<!DOCTYPE html>
 <span><span class="b tbc">tbc</span> """+T("pending, not declarable yet","待定，暂不可声明")+"""</span>
 <span><span class="was">14%</span> """+T("previous figure","原表数值")+"""</span>
 </div>
+<div class="shint">"""+T("swipe the table sideways for all five products","左右滑动查看全部五款产品")+"""</div>
 <div class="tw" id="tblVerified"><table><tbody>"""+PRODHEAD+vrows()+"""</tbody></table></div>
 <div class="tw" id="tblOriginal"><table><tbody>"""+PRODHEAD+orows()+"""</tbody></table></div>
 <p class="sub" style="margin-top:10px">"""+T("Conditioning differs across the mean strength row: Lucideon and SGS dried at 105 °C, the L0, N20 and N30 figures are natural-dry internal values. The same L10 batch measured 24.9 N/mm² natural-dry under China GB, so the two regimes cannot be compared side by side. Specific heat: third-party tested in Wuhan, 2025; the report is being archived. Fire resistance REI 264 min: Warringtonfire tested the loadbearing wall to EN 1365-1; resistance, integrity and insulation all held to 264 minutes, when the test was stopped. Water vapour permeability now comes from the Lucideon EN ISO 12572 cup-method reports (N26458). Both the fire-resistance and vapour reports are in the downloads below. CWFT: inorganic products with organic content at or below 1% may claim A1 without testing, composition to be confirmed for L0, N20 and N30.",
