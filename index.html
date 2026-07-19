@@ -1,258 +1,210 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>earth4Earth 吸碳砖技术规格 · 数据核验与计算报告 | Technical Specifications — Data Verification &amp; Calculation Report</title>
+<title>earth4Earth 吸碳砖技术规格 · 数据核验与声明值计算</title>
 <style>
-:root{--g:#1e5c2f;--g2:#2e7d32;--dgrey:#4a4a4a;--lgrey:#9e9e9e;--row:#8f8f8f;--rowt:#fff;
---hl:#fff3cd;--err:#ffd7d7;--warn:#ffe8c2;--ok:#d9f2df;--ink:#1c1c1c}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif;color:var(--ink);background:#f6f7f5;line-height:1.55}
-.wrap{max-width:1280px;margin:0 auto;padding:24px 20px 80px}
-header.site{background:linear-gradient(120deg,#12381d,#1e5c2f 55%,#2e7d32);color:#fff;padding:38px 20px 30px}
-header.site .wrap{padding:0 20px}
-h1{font-size:1.7rem;letter-spacing:.2px}
-.sub{opacity:.92;margin-top:8px;font-size:.95rem}
-.badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
-.badge{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:3px 12px;font-size:.8rem}
-nav.toc{position:sticky;top:0;background:#fff;border-bottom:2px solid var(--g);z-index:5;box-shadow:0 1px 6px rgba(0,0,0,.08)}
-nav.toc .wrap{padding:10px 20px;display:flex;gap:18px;flex-wrap:wrap}
-nav.toc a{color:var(--g);text-decoration:none;font-weight:600;font-size:.9rem}
-nav.toc a:hover{text-decoration:underline}
-section{margin-top:42px}
-h2{color:var(--g);font-size:1.3rem;border-left:5px solid var(--g);padding-left:12px;margin-bottom:6px}
-h3{color:#2c2c2c;font-size:1.05rem;margin:22px 0 8px}
-.note{font-size:.88rem;color:#555;margin:6px 0 14px}
-.tablewrap{overflow-x:auto;background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.07);padding:2px}
-table.spec{border-collapse:collapse;width:100%;min-width:980px;font-size:.85rem}
-table.spec th,table.spec td{border:1.5px solid #fff;padding:8px 10px;vertical-align:top}
-table.spec thead th{background:#000;color:#fff;text-align:left;font-size:.86rem}
-table.spec td.char{background:var(--g);color:#fff;font-weight:600;width:210px}
-table.spec td{background:var(--row);color:var(--rowt)}
-table.spec tr.alt td:not(.char){background:#7a7a7a}
-table.spec td.err{background:#a33;color:#fff}
-table.spec td.warn{background:#b57614;color:#fff}
-table.spec td.fix{background:#2e6b3d;color:#fff}
-table.spec td .old{display:block;text-decoration:line-through;opacity:.75;font-size:.78rem}
-table.spec td .why{display:block;font-size:.74rem;opacity:.92;margin-top:2px}
-.spanhead td{background:var(--g)!important;color:#fff;text-align:center;font-weight:700}
-sup{font-weight:700}
-table.calc{border-collapse:collapse;width:100%;font-size:.88rem;background:#fff}
-table.calc th,table.calc td{border:1px solid #cfd6cf;padding:7px 10px;text-align:center}
-table.calc th{background:var(--g);color:#fff}
-table.calc td.l{text-align:left}
-table.calc tr.hl td{background:var(--hl);font-weight:700}
-.card{background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.07);padding:18px 22px;margin-top:12px}
-.formula{font-family:Consolas,monospace;background:#eef3ee;border-left:4px solid var(--g);padding:10px 14px;margin:10px 0;font-size:.9rem;overflow-x:auto}
-.caveat{background:#fff8e6;border-left:4px solid #d99a06;padding:12px 16px;margin:12px 0;font-size:.88rem}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;margin:10px 0}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.chip{display:inline-block;width:16px;height:16px;border-radius:3px}
-.dlgroup{background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.07);padding:16px 22px;margin-top:14px}
-.dlgroup h4{color:var(--g);font-size:1rem}
-.dlsub{font-size:.8rem;color:#666;margin:2px 0 8px}
-.dlgroup ul{list-style:none}
-.dlgroup li{padding:5px 0;border-bottom:1px dashed #e2e6e2;font-size:.86rem;display:flex;justify-content:space-between;gap:14px}
-.dlgroup li:last-child{border-bottom:none}
-.dlgroup a{color:#155a99;text-decoration:none;word-break:break-all}
-.dlgroup a:hover{text-decoration:underline}
-.sz{color:#999;white-space:nowrap;font-size:.78rem}
-footer{margin-top:60px;padding:26px 20px;background:#12381d;color:#cfe3d3;font-size:.82rem}
-footer a{color:#fff}
-.fnotes{font-size:.8rem;color:#555;margin-top:10px;line-height:1.7}
-.tag{display:inline-block;border-radius:4px;padding:1px 7px;font-size:.72rem;font-weight:700;margin-left:6px;vertical-align:1px}
-.tag.tp{background:#d9f2df;color:#14522a}.tag.lab{background:#ffe8c2;color:#7a4c00}.tag.dop{background:#dbe7ff;color:#173e7a}.tag.tbc{background:#eee;color:#777}
-@media print{nav.toc{display:none}}
+:root{--surface:#fcfcfb;--card:#fff;--ink:#1d1d1b;--muted:#6b6b66;--line:#e7e7e2;
+--accent:#166b3f;--accent-soft:#ebf4ee;--data:#2a78d6;--err:#b3261e;--err-soft:#fbeceb;
+--amber:#8a5a00;--amber-soft:#fdf3dc;--blue:#1a4f9c;--blue-soft:#e9effb;--tbcc:#85857f;--tbc-soft:#f0f0ec}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:var(--surface);color:var(--ink);line-height:1.6;font-size:15px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.hero{padding:64px 0 40px;border-bottom:1px solid var(--line)}
+.kicker{color:var(--accent);font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:1.9rem;line-height:1.25;margin:10px 0 6px;letter-spacing:-.01em}
+.lede{color:var(--muted);max-width:56em}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:28px}
+.kcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.kcard .n{font-size:2rem;font-weight:750;letter-spacing:-.02em}
+.kcard .n small{font-size:.95rem;font-weight:500;color:var(--muted)}
+.kcard .t{font-size:.85rem;color:var(--muted);margin-top:2px}
+.kcard.g .n{color:var(--accent)}
+nav{position:sticky;top:0;background:rgba(252,252,251,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:10}
+nav .wrap{display:flex;gap:22px;padding:12px 24px;overflow-x:auto;white-space:nowrap}
+nav a{color:var(--ink);text-decoration:none;font-size:.86rem;font-weight:600}
+nav a:hover{color:var(--accent)}
+section{padding:52px 0 8px}
+h2{font-size:1.35rem;letter-spacing:-.01em;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:20px;max-width:60em}
+h3{font-size:1.02rem;margin:26px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-top:14px}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:.86rem}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:none}
+thead .ph,tr:first-child .ph{font-weight:700;background:var(--accent-soft);border-bottom:2px solid var(--accent)}
+.ph i{display:block;font-style:normal;font-weight:500;color:var(--muted);font-size:.76rem}
+tbody th{font-weight:650;width:220px;color:var(--ink);background:#fafaf7}
+td i,th em{display:block;font-style:normal;color:var(--muted);font-size:.76rem;margin-top:1px}
+td.e{background:var(--err-soft)}
+td.w{background:var(--amber-soft)}
+.b{display:inline-block;font-size:.68rem;font-weight:700;border-radius:99px;padding:0 8px;margin-left:6px;vertical-align:1px}
+.b.tp{background:var(--accent-soft);color:var(--accent)}
+.b.lab{background:var(--amber-soft);color:var(--amber)}
+.b.dop{background:var(--blue-soft);color:var(--blue)}
+.b.tbc{background:var(--tbc-soft);color:var(--tbcc);margin-left:0}
+.was{display:inline-block;font-size:.72rem;color:var(--err);background:var(--err-soft);border-radius:6px;padding:0 6px;margin-left:6px;text-decoration:line-through}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.8rem;color:var(--muted);margin:12px 2px}
+.step{display:flex;gap:16px;margin-top:14px}
+.step .no{flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.9rem;margin-top:20px}
+.step .card{flex:1;margin-top:0}
+.f{font-family:Consolas,"JetBrains Mono",monospace;background:#f4f6f3;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;font-size:.84rem;margin:10px 0;overflow-x:auto}
+.quote{border-left:3px solid var(--line);padding:6px 14px;color:var(--muted);font-size:.85rem;margin:8px 0}
+.caveat{background:var(--amber-soft);border:1px solid #ecd9a8;border-radius:10px;padding:12px 16px;font-size:.86rem;margin-top:14px}
+.callout{background:var(--accent-soft);border:1px solid #cfe3d6;border-radius:10px;padding:12px 16px;font-size:.86rem;margin-top:14px}
+svg{width:100%;height:auto;display:block;margin-top:8px}
+.ax{font-size:11px;fill:var(--muted)}
+.rl{font-size:11.5px;font-weight:650}
+.chartcap{font-size:.8rem;color:var(--muted);margin-top:4px}
+.dl{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-top:12px}
+.dl h4{font-size:.95rem}.dl>p{font-size:.78rem;color:var(--muted);margin-bottom:6px}
+.dl ul{list-style:none;padding:0}
+.dl li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.84rem}
+.dl li:last-child{border:none}
+.dl a{color:var(--blue);text-decoration:none;word-break:break-all}
+.dl a:hover{text-decoration:underline}
+.dl li span{color:#9a9a94;font-size:.76rem;white-space:nowrap}
+footer{margin-top:64px;border-top:1px solid var(--line);padding:26px 0 48px;color:var(--muted);font-size:.8rem}
+footer a{color:var(--accent)}
+.en{color:var(--muted);font-size:.86em}
+@media (max-width:640px){.hero{padding:40px 0 28px}h1{font-size:1.5rem}}
 </style>
 </head>
 <body>
-<header class="site"><div class="wrap">
-<h1>earth4Earth 吸碳砖技术规格 — 数据核验与更正 / Technical Specifications — Verified &amp; Corrected</h1>
-<div class="sub">Manufactured to BS EN 771-1 · 依据全部原始检测报告逐格核验 every cell verified against source test reports · 2026-07</div>
-<div class="badges">
-<span class="badge">国标 China GB (HBQI)</span><span class="badge">Lucideon UKAS 0013</span>
-<span class="badge">Warringtonfire A1/A1FL</span><span class="badge">SGS · 上海建科 SRIBS</span>
-<span class="badge">EPD Hub HUB-3866 / HUB-4829</span><span class="badge">41 份源文件可下载 source files downloadable</span>
-</div></div></header>
 
-<nav class="toc"><div class="wrap">
-<a href="#corrected">① 更正版规格表 Corrected</a>
-<a href="#original">② 原版对照 Original (annotated)</a>
-<a href="#calc">③ 特征强度计算报告 Strength Calculation</a>
-<a href="#wa">④ 吸水率来源 Water Absorption</a>
-<a href="#downloads">⑤ 源文件下载 Downloads</a>
+<div class="hero"><div class="wrap">
+<div class="kicker">earth4Earth · Technical Specifications Data Pack</div>
+<h1>吸碳砖技术规格：数据核验与抗压强度声明值计算<br><span class="en" style="font-size:.6em;font-weight:500">Carbon-capture bricks — verified specifications &amp; declared compressive strength per BS EN 771-1 / 772-1</span></h1>
+<p class="lede">对市场版技术规格表逐格核验；抗压强度声明值按 BS EN 771-1 <b>Category I</b>（失效概率 ≤5%，置信度 95%）由 Lucideon 实测数据推导。数据优先级：<b>BBA / Lucideon / Warringtonfire / SGS / 建科</b> → 国标 → 内部实验室。</p>
+<div class="cards">
+<div class="kcard g"><div class="n">35 <small>N/mm²</small></div><div class="t">L10 建议声明值（Category I 上限 37.0）</div></div>
+<div class="kcard g"><div class="n">22.5 <small>N/mm²</small></div><div class="t">N10 建议声明值（Category I 上限 25.0）</div></div>
+<div class="kcard"><div class="n">×1.0 · δ 0.845</div><div class="t">EN 772-1 归一化：养护 7.3.2(b) 系数 1.0，形状系数 Table A.1 插值</div></div>
+<div class="kcard"><div class="n">15 份</div><div class="t">全部引用源文件可下载（8 MB）</div></div>
+</div>
+</div></div>
+
+<nav><div class="wrap">
+<a href="#spec">① 更正版规格表</a><a href="#calc">② 声明值计算</a><a href="#orig">③ 原版对照</a><a href="#wa">④ 吸水率来源</a><a href="#dl">⑤ 源文件下载</a>
 </div></nav>
 
 <div class="wrap">
 
-<section id="corrected">
-<h2>① 更正版技术规格表 Corrected Technical Specifications</h2>
-<p class="note">每格标注数据来源等级；更正处保留原值（划线）与更正理由。
-Each cell carries a source grade; corrected cells keep the original value (struck through) and the reason.</p>
+<section id="spec">
+<h2>① 更正版技术规格表 <span class="en">Corrected specifications</span></h2>
+<p class="sub">每格标注数据等级；被更正处保留原值（红色划线）。Manufactured to BS EN 771-1，尺寸 215×102.5×65 mm。</p>
 <div class="legend">
-<span><span class="tag tp">†</span> 第三方检测 Third-party tested</span>
-<span><span class="tag lab">‡</span> 内部实验室 Internal lab（待第三方复核 to be verified）</span>
-<span><span class="tag dop">§</span> DoP 声明值 Declared</span>
-<span><span class="tag tbc">#</span> CWFT 可免测A1（须确认有机物≤1%）</span>
-<span><span class="chip" style="background:#a33"></span> 更正（原值有误）corrected error</span>
-<span><span class="chip" style="background:#b57614"></span> 无依据→tbc unsupported → tbc</span>
-<span><span class="chip" style="background:#2e6b3d"></span> 补充/建议 addition / recommendation</span>
+<span><span class="b tp">†第三方</span> Lucideon / Warringtonfire / SGS / 建科 / 国标</span>
+<span><span class="b lab">‡内部</span> 内部实验室，待第三方复核</span>
+<span><span class="b dop">§声明</span> DoP 声明值</span>
+<span><span class="b tbc">tbc</span> 待定，暂不声明</span>
+<span><span class="was">原 值</span> 原表数值（有误或无据）</span>
 </div>
-<div class="tablewrap"><table class="spec"><thead><tr><th>Characteristics 特性</th><th>L0 – No binder</th><th>L10 – Conventional binder</th><th>N10 – 10% e4E binder</th><th>N20 – 20% e4E binder</th><th>N30 – 30% e4E binder</th></tr></thead><tbody>
-<tr class=""><td class="char">颜色 Colour *</td><td class="">深灰 Dark grey</td><td class="">灰 Grey</td><td class="">灰 Grey</td><td class="">浅灰 Light grey</td><td class="">灰白 White-grey</td></tr>
-<tr class="alt"><td class="char">尺寸 Dimensions (mm)</td><td class="">215 × 102.5 × 65</td><td class="">215 × 102.5 × 65<sup title="第三方检测 Third-party tested">†</sup></td><td class="">215 × 102.5 × 65<sup title="第三方检测 Third-party tested">†</sup></td><td class="">215 × 102.5 × 65</td><td class="">215 × 102.5 × 65</td></tr>
-<tr class="spanhead"><td colspan="6">尺寸公差 Dimensional Tolerances</td></tr>
-<tr class=""><td class="char">公差类别 Tolerance category</td><td class="">T2</td><td class="">T2<sup title="第三方检测 Third-party tested">†</sup></td><td class="">T2<sup title="第三方检测 Third-party tested">†</sup></td><td class="">T2</td><td class="">T2</td></tr>
-<tr class="alt"><td class="char">范围类别 Range category</td><td class="">R2</td><td class="">R2<sup title="第三方检测 Third-party tested">†</sup></td><td class="">R2<sup title="第三方检测 Third-party tested">†</sup></td><td class="">R2</td><td class="fix">R2<span class='why'>原表R1，内部矩阵为R2 (was R1; internal matrix: R2)</span></td></tr>
-<tr class=""><td class="char">实测平均抗压强度 Mean compressive strength (N/mm²)</td><td class="">7<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup><span class='why'>自然态 natural-dry</span></td><td class="">50.9<sup title="第三方检测 Third-party tested">†</sup><span class='why'>105℃烘干 oven-dry (Lucideon N26730)</span></td><td class="">39.1<sup title="第三方检测 Third-party tested">†</sup><span class='why'>105℃烘干 oven-dry (Lucideon N253627)</span></td><td class="">35<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup><span class='why'>自然态 natural-dry</span></td><td class="">46<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup><span class='why'>自然态 natural-dry</span></td></tr>
-<tr class="alt"><td class="char">特征归一化强度 f<sub>b,k</sub> Characteristic normalised strength (N/mm²) ▸新增</td><td class="warn">tbc</td><td class="fix">≈29.6–37.0<sup title="第三方检测 Third-party tested">†</sup><span class='why'>见计算报告 see calculation report</span></td><td class="fix">≈20.0–25.0<sup title="第三方检测 Third-party tested">†</sup><span class='why'>见计算报告 see calculation report</span></td><td class="warn">tbc</td><td class="warn">tbc</td></tr>
-<tr class=""><td class="char">声明抗压强度 Declared compressive strength (N/mm²)</td><td class="">3.5<sup title="DoP 声明值 Declared (DoP)">§</sup></td><td class="fix">10<sup title="DoP 声明值 Declared (DoP)">§</sup><span class='why'>现行DoP；数据可支撑上调至≤25（待Lucideon归一化确认）current DoP; data supports ≤25 pending lab confirmation</span></td><td class="fix">10<sup title="DoP 声明值 Declared (DoP)">§</sup><span class='why'>现行DoP；数据可支撑至≤20（建议15）data supports ≤20 (suggest 15)</span></td><td class="err">tbc<span class='old'>7.5</span><span class='why'>无依据且低于N10声明，删除；待正式送检 unsupported & illogical, remove until formally tested</span></td><td class="err">tbc<span class='old'>7.5</span><span class='why'>同左 same as N20</span></td></tr>
-<tr class="alt"><td class="char">砌体抗压特征值 Masonry compressive strength f<sub>k</sub> (BS EN 1052-1)</td><td class="">tbc</td><td class="">6.28<sup title="第三方检测 Third-party tested">†</sup></td><td class="">7.06<sup title="第三方检测 Third-party tested">†</sup></td><td class="">tbc</td><td class="">tbc</td></tr>
-<tr class=""><td class="char">吸水率 Water absorption (24h)</td><td class="">N/A</td><td class="err">13%<sup title="第三方检测 Third-party tested">†</sup><span class='old'>14%</span><span class='why'>SGS CM05 & 国标 JC202506061 均为13% both give 13%</span></td><td class="err">11.8%<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup><span class='old'>10%</span><span class='why'>内部LAB 0.1183；无第三方报告 internal lab; no third-party report yet</span></td><td class="err">tbc<span class='old'>14%</span><span class='why'>未检测 not tested</span></td><td class="err">10.2%<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup><span class='old'>17%</span><span class='why'>内部LAB 0.1024；17%无出处且方向反 internal lab 10.24%; 17% unsupported & wrong direction</span></td></tr>
-<tr class="alt"><td class="char">初始吸水率 Initial rate of water absorption (kg/(m²·min))</td><td class="">tbc</td><td class="">0.5<sup title="第三方检测 Third-party tested">†</sup></td><td class="">1.1<sup title="第三方检测 Third-party tested">†</sup></td><td class="">tbc</td><td class="">tbc</td></tr>
-<tr class=""><td class="char">水蒸气透湿系数 Water vapour permeability (mg/(m·h·Pa))</td><td class="">tbc</td><td class="err">0.068<sup title="第三方检测 Third-party tested">†</sup><span class='old'>0.035</span><span class='why'>=1.9×10⁻¹¹ kg/(s·m·Pa)，上海建科 JR228-260044 (SRIBS)</span></td><td class="fix">0.043<sup title="DoP 声明值 Declared (DoP)">§</sup><span class='old'>0.048</span><span class='why'>=1.19×10⁻¹¹ kg/(s·m·Pa)，N10 DoP</span></td><td class="warn">tbc</td><td class="warn">tbc</td></tr>
-<tr class="alt"><td class="char">等效导热系数 Equivalent thermal conductivity W/(m·K) ‡‡</td><td class="">0.8<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup></td><td class="warn">tbc<span class='old'>0.9</span><span class='why'>内部矩阵为Pending，待测 pending in internal matrix</span></td><td class="">0.9<sup title="DoP 声明值 Declared (DoP)">§</sup></td><td class="warn">tbc<span class='old'>0.8</span></td><td class="warn">tbc<span class='old'>0.8</span></td></tr>
-<tr class=""><td class="char">比热容 Specific heat capacity J/(g·K)</td><td class="">0.8411<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup></td><td class="warn">tbc<span class='old'>0.78</span><span class='why'>Pending，待测 pending</span></td><td class="">0.8392<sup title="DoP 声明值 Declared (DoP)">§</sup></td><td class="warn">tbc<span class='old'>0.78</span></td><td class="warn">tbc<span class='old'>0.86</span></td></tr>
-<tr class="alt"><td class="char">可溶盐类别 Active soluble salts content</td><td class="">S2<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup></td><td class="">S2<sup title="第三方检测 Third-party tested">†</sup></td><td class="">S2<sup title="第三方检测 Third-party tested">†</sup></td><td class="warn">tbc<span class='old'>S2</span><span class='why'>未检测 not tested</span></td><td class="warn">tbc<span class='old'>S2</span><span class='why'>未检测 not tested</span></td></tr>
-<tr class=""><td class="char">防火反应分级 Reaction to fire (EN 13501-1)</td><td class="">A1 <sup title="CWFT — 有机物含量≤1%可免测分级为A1，需确认 Classified Without Further Testing possible if organic content ≤1% (to confirm)">#</sup></td><td class="">A1 / A1<sub>FL</sub><sup title="第三方检测 Third-party tested">†</sup><span class='why'>Warringtonfire 557889 正式版 final, 2026-06-18</span></td><td class="">A1 / A1<sub>FL</sub><sup title="第三方检测 Third-party tested">†</sup><span class='why'>Warringtonfire 557890 正式版 final, 2026-06-18</span></td><td class="">A1 <sup title="CWFT — 有机物含量≤1%可免测分级为A1，需确认 Classified Without Further Testing possible if organic content ≤1% (to confirm)">#</sup></td><td class="">A1 <sup title="CWFT — 有机物含量≤1%可免测分级为A1，需确认 Classified Without Further Testing possible if organic content ≤1% (to confirm)">#</sup></td></tr>
-<tr class="alt"><td class="char">耐火极限 Fire resistance (EN 13501-2)</td><td class="warn">tbc</td><td class="err">tbc<span class='old'>264 minutes</span><span class='why'>档案中无EN13501-2报告，264分钟无出处 no EN 13501-2 report on file; 264 min unverifiable</span></td><td class="err">tbc<span class='old'>264 minutes</span><span class='why'>同左 same</span></td><td class="warn">tbc</td><td class="warn">tbc</td></tr>
-<tr class=""><td class="char">危险物质 Dangerous substances</td><td class="">符合2003/33/EC，环保可回收 Eco-friendly & fully recyclable, compliant with 2003/33/EC</td><td class="">符合2003/33/EC，环保可回收 Eco-friendly & fully recyclable, compliant with 2003/33/EC</td><td class="">符合2003/33/EC，环保可回收 Eco-friendly & fully recyclable, compliant with 2003/33/EC</td><td class="">符合2003/33/EC，环保可回收 Eco-friendly & fully recyclable, compliant with 2003/33/EC</td><td class="">符合2003/33/EC，环保可回收 Eco-friendly & fully recyclable, compliant with 2003/33/EC</td></tr>
-</tbody></table></div>
-<div class="fnotes">
-* 天然土色随土源变化，可加颜料定制。Natural colour varies with soil source; pigment customisation possible.<br>
-† 第三方：国标=湖北省产品质量监督检验研究院；Lucideon（UKAS 0013）；SGS；上海建科；Warringtonfire（UKAS 0249）。<br>
-‡ 内部实验室值，出自 UKCA-2026 内部性能矩阵，尚无第三方报告。Internal lab values from the UKCA-2026 matrix; no third-party report yet.<br>
-‡‡ 导热/比热：内部矩阵中 L10/N20/N30 为 Pending；仅 L0（内部）与 N10（DoP）有依据。<br>
-▸ 平均强度行养护基准不同（烘干 vs 自然态），不可横向直接比较：同一 L10 烘干50.9 / SGS烘干35.8 / 国标自然态24.9。
-Mean-strength row mixes conditioning regimes (oven vs natural dry) — not directly comparable across columns.<br>
-▸ 声明强度按 BS EN 771-1 应采用归一化特征值（5%分位数）为上限——见③计算报告。Declared value must not exceed the characteristic normalised strength — see section ③.
-</div>
-</section>
-
-<section id="original">
-<h2>② 原版表对照（重建，含标注）Original Table (reconstructed, annotated)</h2>
-<p class="note">按 2026-06 市场版技术规格表逐格重建；<b style="color:#a33">红=与实测矛盾</b>，<b style="color:#b57614">橙=无依据/待确认</b>。
-Faithful reconstruction of the June-2026 marketing table; red = contradicts measurements, orange = unsupported / to confirm.
-表头 “UKCA/CE/EPD certified” 亦不精确：N10 证书已签发+EPD已发布；L10 证书为草稿、无EPD；N30 仅EPD；N20 均无。</p>
-<div class="tablewrap"><table class="spec"><thead><tr><th>Characteristics 特性</th><th>L0 – No binder</th><th>L10 – Conventional binder</th><th>N10 – 10% e4E binder</th><th>N20 – 20% e4E binder</th><th>N30 – 30% e4E binder</th></tr></thead><tbody>
-<tr class=""><td class="char">Colour*</td><td class="">Dark grey</td><td class="">Grey</td><td class="">Grey</td><td class="">Light grey</td><td class="">White-grey</td></tr>
-<tr class="alt"><td class="char">Dimensions (mm)</td><td class="">215 x 102.5 x 65</td><td class="">215 x 102.5 x 65†</td><td class="">215 x 102.5 x 65†</td><td class="">215 x 102.5 x 65</td><td class="">215 x 102.5 x 65</td></tr>
-<tr class="spanhead"><td colspan="6">Dimensional Tolerances</td></tr>
-<tr class=""><td class="char">Tolerance category</td><td class="">T2</td><td class="">T2†</td><td class="">T2†</td><td class="">T2</td><td class="">T2</td></tr>
-<tr class="alt"><td class="char">Range category</td><td class="">R2</td><td class="">R2†</td><td class="">R2†</td><td class="">R2</td><td class="err">R1<span class='why'>应为R2 should be R2</span></td></tr>
-<tr class=""><td class="char">Mean compressive strength (N/mm²)</td><td class="">7</td><td class="">50.9†</td><td class="">39.1†</td><td class="warn">35<span class='why'>自然态,与烘干值不可同列比较 natural-dry, not comparable</span></td><td class="warn">46<span class='why'>同左</span></td></tr>
-<tr class="alt"><td class="char">Declared compressive strength (N/mm²)</td><td class="">3.5</td><td class="">10</td><td class="">10</td><td class="err">7.5<span class='why'>无依据;低于N10不合逻辑 unsupported; illogical vs N10</span></td><td class="err">7.5<span class='why'>同左</span></td></tr>
-<tr class=""><td class="char">Masonry compressive strength (BS EN 1052-1:1999)</td><td class="">tbc</td><td class="">6.28†</td><td class="">7.06†</td><td class="">tbc</td><td class="">tbc</td></tr>
-<tr class="alt"><td class="char">Water absorption</td><td class="">N/A</td><td class="err">14%<span class='why'>实测13% measured 13%</span></td><td class="err">10%<span class='why'>内部LAB 11.8%</span></td><td class="err">14%<span class='why'>未测 not tested</span></td><td class="err">17%<span class='why'>内部LAB 10.2%;方向也反 lab says 10.2%</span></td></tr>
-<tr class=""><td class="char">Initial rate of water absorption (kg/(m²·min))</td><td class="">tbc</td><td class="">0.5†</td><td class="">1.1†</td><td class="">tbc</td><td class="">tbc</td></tr>
-<tr class="alt"><td class="char">Water vapour permeability (mg/m·h·Pa)</td><td class="">tbc</td><td class="err">0.035†<span class='why'>实测0.068 (1.9e-11) measured 0.068</span></td><td class="warn">0.048†<span class='why'>DoP为0.043 (1.19e-11)</span></td><td class="">tbc</td><td class="">tbc</td></tr>
-<tr class=""><td class="char">Equivalent thermal conductivity W/(m·K)‡</td><td class="">0.8</td><td class="warn">0.9<span class='why'>Pending 待测</span></td><td class="">0.9</td><td class="warn">0.8<span class='why'>Pending</span></td><td class="warn">0.8<span class='why'>Pending</span></td></tr>
-<tr class="alt"><td class="char">Specific heat capacity</td><td class="">0.84 J/(g·K)</td><td class="warn">0.78 J/(g·K)<span class='why'>Pending 待测</span></td><td class="">0.84 J/(g·K)</td><td class="warn">0.78 J/(g·K)<span class='why'>Pending</span></td><td class="warn">0.86 J/(g·K)<span class='why'>Pending</span></td></tr>
-<tr class=""><td class="char">Active soluble salts content</td><td class="">S2</td><td class="">S2†</td><td class="">S2†</td><td class="warn">S2<span class='why'>未测 not tested</span></td><td class="warn">S2<span class='why'>未测 not tested</span></td></tr>
-<tr class="alt"><td class="char">Reaction to fire</td><td class="">A1</td><td class="">A1†</td><td class="">A1†</td><td class="warn">A1<span class='why'>未测,可走CWFT需确认 untested; CWFT route to confirm</span></td><td class="warn">A1<span class='why'>同左</span></td></tr>
-<tr class=""><td class="char">Fire resistance</td><td class="">tbc</td><td class="err">264 minutes§†<span class='why'>档案无EN13501-2报告 no report on file</span></td><td class="err">264 minutes§†<span class='why'>同左</span></td><td class="">tbc</td><td class="">tbc</td></tr>
-<tr class=""><td class="char">Dangerous substances</td><td class="">Eco-friendly and fully recyclable, compliant with 2003/33/EC</td><td class="">Eco-friendly and fully recyclable, compliant with 2003/33/EC</td><td class="">Eco-friendly and fully recyclable, compliant with 2003/33/EC</td><td class="">Eco-friendly and fully recyclable, compliant with 2003/33/EC</td><td class="">Eco-friendly and fully recyclable, compliant with 2003/33/EC</td></tr>
-</tbody></table></div>
+<div class="tw"><table><tbody><tr><th></th><td class='ph'>L0<i>无粘结剂</i></td><td class='ph'>L10<i>10%常规石灰</i></td><td class='ph'>N10<i>10% e4E石灰</i></td><td class='ph'>N20<i>20% e4E石灰</i></td><td class='ph'>N30<i>30% e4E石灰</i></td></tr><tr><th>颜色 Colour</th><td>深灰</td><td>灰</td><td>灰</td><td>浅灰</td><td>灰白</td></tr><tr><th>尺寸 Dimensions (mm)</th><td>215×102.5×65</td><td>215×102.5×65 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>215×102.5×65 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>215×102.5×65</td><td>215×102.5×65</td></tr><tr><th>公差 / 范围类别 Tolerance / Range</th><td>T2 / R2</td><td>T2 / R2 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>T2 / R2 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>T2 / R2</td><td>T2 / R2 <span class="was">原 R1</span></td></tr><tr><th>实测平均抗压强度 Mean compressive (N/mm²)</th><td>7 <span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span><i>自然态</i></td><td>50.9 <span class="b tp" title="第三方检测 third-party tested">†第三方</span><i>Lucideon·105℃</i></td><td>39.1 <span class="b tp" title="第三方检测 third-party tested">†第三方</span><i>Lucideon·105℃</i></td><td>35 <span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span><i>自然态</i></td><td>46 <span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span><i>自然态</i></td></tr><tr><th>归一化抗压强度 f<sub>b</sub> (N/mm²) <em>新增</em></th><td><span class="b tbc">tbc</span></td><td>43.0 <span class="b tp" title="第三方检测 third-party tested">†第三方</span><i>×1.0×0.845</i></td><td>33.0 <span class="b tp" title="第三方检测 third-party tested">†第三方</span><i>×1.0×0.845</i></td><td><span class="b tbc">tbc</span></td><td><span class="b tbc">tbc</span></td></tr><tr><th>Category I 声明上限（95%置信）Cat I ceiling</th><td><span class="b tbc">tbc</span></td><td>37.0 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>25.0 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td><span class="b tbc">tbc</span></td><td><span class="b tbc">tbc</span></td></tr><tr><th>建议声明抗压强度 Recommended declared (N/mm²)</th><td>3.5 <span class="b dop" title="DoP 声明值 declared">§声明</span></td><td><b>35</b><i>现行声明10可上调</i></td><td><b>22.5</b><i>现行DoP=10可上调</i></td><td><span class="b tbc">tbc</span><span class="was">原 7.5</span><i>无据，待送检</i></td><td><span class="b tbc">tbc</span><span class="was">原 7.5</span><i>无据，待送检</i></td></tr><tr><th>砌体抗压特征值 Masonry f<sub>k</sub> EN1052-1 (N/mm²)</th><td><span class="b tbc">tbc</span></td><td>6.28 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>7.06 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td><span class="b tbc">tbc</span></td><td><span class="b tbc">tbc</span></td></tr><tr><th>吸水率 Water absorption (24 h)</th><td>N/A</td><td><b>13%</b> <span class="b tp" title="第三方检测 third-party tested">†第三方</span><span class="was">原 14%</span><i>SGS＋国标一致</i></td><td>11.8% <span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span><span class="was">原 10%</span></td><td><span class="b tbc">tbc</span><span class="was">原 14%</span></td><td>10.2% <span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span><span class="was">原 17%</span></td></tr><tr><th>初始吸水率 IRWA (kg/(m²·min))</th><td><span class="b tbc">tbc</span></td><td>0.5 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>1.1 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td><span class="b tbc">tbc</span></td><td><span class="b tbc">tbc</span></td></tr><tr><th>水蒸气透湿 WVP (mg/(m·h·Pa))</th><td><span class="b tbc">tbc</span></td><td><b>0.068</b> <span class="b tp" title="第三方检测 third-party tested">†第三方</span><span class="was">原 0.035</span><i>建科 1.9×10⁻¹¹</i></td><td>0.043 <span class="b dop" title="DoP 声明值 declared">§声明</span><span class="was">原 0.048</span></td><td><span class="b tbc">tbc</span></td><td><span class="b tbc">tbc</span></td></tr><tr><th>导热系数 Thermal conductivity λ (W/(m·K))</th><td>0.8 <span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span></td><td><span class="b tbc">tbc</span><span class="was">原 0.9</span></td><td>0.9 <span class="b dop" title="DoP 声明值 declared">§声明</span></td><td><span class="b tbc">tbc</span><span class="was">原 0.8</span></td><td><span class="b tbc">tbc</span><span class="was">原 0.8</span></td></tr><tr><th>比热容 Specific heat (J/(g·K))</th><td>0.8411 <span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span></td><td><span class="b tbc">tbc</span><span class="was">原 0.78</span></td><td>0.8392 <span class="b dop" title="DoP 声明值 declared">§声明</span></td><td><span class="b tbc">tbc</span><span class="was">原 0.78</span></td><td><span class="b tbc">tbc</span><span class="was">原 0.86</span></td></tr><tr><th>可溶盐类别 Active soluble salts</th><td>S2 <span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span></td><td>S2 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>S2 <span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td><span class="b tbc">tbc</span><span class="was">原 S2</span></td><td><span class="b tbc">tbc</span><span class="was">原 S2</span></td></tr><tr><th>防火反应 Reaction to fire EN13501-1</th><td>A1<i>CWFT待确认</i></td><td>A1/A1<sub>FL</sub> <span class="b tp" title="第三方检测 third-party tested">†第三方</span><i>557889 正式</i></td><td>A1/A1<sub>FL</sub> <span class="b tp" title="第三方检测 third-party tested">†第三方</span><i>557890 正式</i></td><td>A1<i>CWFT待确认</i></td><td>A1<i>CWFT待确认</i></td></tr><tr><th>耐火极限 Fire resistance EN13501-2</th><td><span class="b tbc">tbc</span></td><td><span class="b tbc">tbc</span><span class="was">原 264 min</span><i>档案无报告</i></td><td><span class="b tbc">tbc</span><span class="was">原 264 min</span></td><td><span class="b tbc">tbc</span></td><td><span class="b tbc">tbc</span></td></tr><tr><th>危险物质 Dangerous substances</th><td>符合 2003/33/EC</td><td>符合 2003/33/EC</td><td>符合 2003/33/EC</td><td>符合 2003/33/EC</td><td>符合 2003/33/EC</td></tr></tbody></table></div>
+<p class="sub" style="margin-top:10px">养护口径：Lucideon/SGS 为 105 ℃ 干燥（EN 772-1 7.3.2(b)）；L0/N20/N30 为自然态内部值——同一 L10 自然态（国标）均值 24.9 N/mm²，两口径不可横向比较。防火 CWFT：无机材料有机物含量 ≤1% 可免测按 A1 分级（BBA 规范 S172697 附录 B），L0/N20/N30 采用前需确认成分。</p>
 </section>
 
 <section id="calc">
-<h2>③ 特征抗压强度计算报告 Characteristic Compressive Strength — Calculation Report</h2>
+<h2>② 抗压强度声明值计算 <span class="en">Declared strength — full derivation</span></h2>
+<p class="sub">目标：按 BS EN 771-1 确定 L10 / N10 可对外声明的抗压强度（Category I，95% 置信）。全过程可复算，所有输入来自 Lucideon 报告单块值。</p>
 
-<div class="card">
-<h3>0. 依据与数据来源 Basis &amp; data source</h3>
-<p style="font-size:.9rem">
-按 <b>BS EN 771-1:2011+A1:2015</b>，单元抗压强度以<b>归一化抗压强度 f<sub>b</sub></b> 声明，可声明平均值或<b>特征值（5% 分位数）</b>；本报告按客户要求采用<b>带 95% 置信度的 5% 分位数</b>（即 95% 置信下 95% 的砖不低于该值）。
-归一化按 <b>BS EN 772-1:2011+A1:2015</b>：先换算至气干基准（浸水态 ×1.2；烘干态换算系数见第4步说明），再乘<b>形状系数 δ</b>（Table A.1，允许插值）。<br>
-数据：Lucideon 单砖抗压报告（105℃ 烘干、表面磨平、大面受压、各 10 块）——
-<b>L10</b>: N26730-2（2026-05-08）；<b>N10</b>: N253627-2（2025-09-30）。UKAS 0013。
-</p>
-<h3>1. 实测单块值 Individual measured values (N/mm², oven-dry)</h3>
-<div class="tablewrap"><table class="calc">
-<tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
-<tr><td class="l"><b>L10</b></td><td>45.6</td><td>48.2</td><td>53.4</td><td>50.3</td><td>50.6</td><td>52.7</td><td>52.2</td><td>52.3</td><td>53.0</td><td>50.3</td></tr>
-<tr><td class="l"><b>N10</b></td><td>39.6</td><td>40.7</td><td>39.1</td><td>42.5</td><td>36.1</td><td>39.7</td><td>40.5</td><td>32.1</td><td>43.1</td><td>37.2</td></tr>
+<div class="step"><div class="no">1</div><div class="card">
+<h3 style="margin-top:0">标准依据 <span class="en">What the standards require</span></h3>
+<p class="quote">BS EN 771-1:2011+A1:2015 §5.3.4（U 类砖）：制造商应声明<b>平均抗压强度</b>，并在相关时声明<b>归一化抗压强度 f<sub>b</sub></b>；同时声明 <b>Category I 或 II</b>。抽样复验要求：批均值 ≥ 声明值，且单块 ≥ 声明值的 80%。</p>
+<p class="quote">Category I（§3 定义 + §8.3.1）：声明抗压强度的<b>未达标概率不超过 5%，对应 95% 置信水平</b>——即"95% 声明值"的出处。Category II 无此统计要求。</p>
+<p class="quote">BS EN 772-1:2011+A1:2015 附录 A：归一化 = 先换算至<b>气干等效</b>（7.3.2 气干含 (b)&nbsp;105 ℃≥24h+冷却≥4h → <b>×1.0</b>；7.3.3 烘至恒重 → ×0.8；7.3.5 浸水 → ×1.2），再乘<b>形状系数 δ</b>（Table A.1，允许线性插值）。</p>
+<p style="font-size:.86rem">本案：SGS 报告明示按 <b>7.3.2(b)</b> 养护（105 ℃ 24h → 23 ℃ 4h）；Lucideon 记录 “Dryer at 105 °C”（未注明恒重），与 7.3.2(b) 一致 → 取 <b>×1.0</b>（若 Lucideon 确认为烘至恒重则改用 ×0.8，结果按 0.8 等比例缩减——待其书面确认）。</p>
+</div></div>
+
+<div class="step"><div class="no">2</div><div class="card">
+<h3 style="margin-top:0">实测数据 <span class="en">Input data — 10 units each, bed face, surface ground</span></h3>
+<div class="tw" style="border:none"><table style="min-width:680px">
+<tr><th></th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><th>报告</th></tr>
+<tr><th>L10 (N/mm²)</th><td>45.6</td><td>48.2</td><td>53.4</td><td>50.3</td><td>50.6</td><td>52.7</td><td>52.2</td><td>52.3</td><td>53.0</td><td>50.3</td><th style="font-weight:500">Lucideon N26730-2 (2026-05-08)</th></tr>
+<tr><th>N10 (N/mm²)</th><td>39.6</td><td>40.7</td><td>39.1</td><td>42.5</td><td>36.1</td><td>39.7</td><td>40.5</td><td>32.1</td><td>43.1</td><td>37.2</td><th style="font-weight:500">Lucideon N253627-2 (2025-09-30)</th></tr>
 </table></div>
+</div></div>
 
-<h3>2. 统计量 Statistics</h3>
-<div class="formula">mean x̄ = Σxᵢ/n　　s = √[Σ(xᵢ−x̄)²/(n−1)]　　CoV = s/x̄</div>
-<div class="tablewrap"><table class="calc">
-<tr><th></th><th>n</th><th>均值 mean</th><th>标准差 s</th><th>CoV</th><th>最小值 min</th><th>与报告一致性 check vs report</th></tr>
-<tr><td class="l"><b>L10</b></td><td>10</td><td>50.86</td><td>2.443</td><td>4.8%</td><td>45.6</td><td class="l">✓ 报告印 50.9 / CoV 4.8%</td></tr>
-<tr><td class="l"><b>N10</b></td><td>10</td><td>39.06</td><td>3.237</td><td>8.3%</td><td>32.1</td><td class="l">✓ 报告印 39.1 / CoV 8.3%</td></tr>
+<div class="step"><div class="no">3</div><div class="card">
+<h3 style="margin-top:0">统计量 <span class="en">Statistics（逐步演算）</span></h3>
+<div class="f">x̄ = Σxᵢ / n        s = √[ Σ(xᵢ − x̄)² / (n−1) ]        CoV = s / x̄</div>
+<div class="f">L10：Σ = 508.6 → x̄ = 508.6/10 = <b>50.86</b>；Σ(xᵢ−x̄)² = 53.72 → s = √(53.72/9) = <b>2.443</b>；CoV = 4.8%
+N10：Σ = 390.6 → x̄ = 390.6/10 = <b>39.06</b>；Σ(xᵢ−x̄)² = 94.28 → s = √(94.28/9) = <b>3.237</b>；CoV = 8.3%</div>
+<p style="font-size:.85rem" class="en">与 Lucideon 报告印刷值一致（L10: 50.9 / 4.8%；N10: 39.1 / 8.3%）——校核通过。</p>
+</div></div>
+
+<div class="step"><div class="no">4</div><div class="card">
+<h3 style="margin-top:0">归一化 <span class="en">Normalisation (EN 772-1 Annex A)</span></h3>
+<div class="f">条件系数 = 1.0（7.3.2(b)）
+δ：Table A.1 → 高65/宽100 = 0.85，高65/宽150 = 0.75（允许插值）
+δ(宽102.5) = 0.85 + (102.5−100)/(150−100) × (0.75−0.85) = 0.85 − 0.005 = <b>0.845</b>
+f_b = 1.0 × 0.845 × f      （线性变换：均值与标准差同乘 0.845）</div>
+<div class="f">L10：f_b均值 = 50.86 × 0.845 = <b>42.98</b>；s_b = 2.443 × 0.845 = 2.065
+N10：f_b均值 = 39.06 × 0.845 = <b>33.01</b>；s_b = 3.237 × 0.845 = 2.735</div>
+</div></div>
+
+<div class="step"><div class="no">5</div><div class="card">
+<h3 style="margin-top:0">Category I 声明上限（95% 置信）<span class="en">One-sided tolerance limit</span></h3>
+<p style="font-size:.88rem">要求 P(单块 &lt; 声明值) ≤ 5% 且置信度 95%。样本统计下采用正态<b>单侧容忍限</b>：声明值 ≤ x̄<sub>b</sub> − k·s<sub>b</sub>，其中 k(n=10, p=95%, γ=95%) = <b>2.911</b>（ISO 16269-6 容忍限系数表）。参考口径 k=1.645（理想大样本 5% 分位点）一并列出。</p>
+<div class="f">L10：42.98 − 2.911×2.065 = <b>36.97 N/mm²</b>　（k=1.64 参考：39.59）
+N10：33.01 − 2.911×2.735 = <b>25.04 N/mm²</b>　（k=1.64 参考：28.52）</div>
+<h3>分布与关键线 <span class="en">Normalised distribution — L10</span></h3>
+<svg viewBox="0 0 760 168" role="img" aria-label="L10 归一化抗压强度分布">
+<line x1="46" y1="128" x2="746" y2="128" stroke="#c9c9c4"/><line x1="46.0" y1="128" x2="46.0" y2="133" stroke="#c9c9c4"/><text x="46.0" y="148" text-anchor="middle" class="ax">0</text><line x1="186.0" y1="128" x2="186.0" y2="133" stroke="#c9c9c4"/><text x="186.0" y="148" text-anchor="middle" class="ax">10</text><line x1="326.0" y1="128" x2="326.0" y2="133" stroke="#c9c9c4"/><text x="326.0" y="148" text-anchor="middle" class="ax">20</text><line x1="466.0" y1="128" x2="466.0" y2="133" stroke="#c9c9c4"/><text x="466.0" y="148" text-anchor="middle" class="ax">30</text><line x1="606.0" y1="128" x2="606.0" y2="133" stroke="#c9c9c4"/><text x="606.0" y="148" text-anchor="middle" class="ax">40</text><line x1="746.0" y1="128" x2="746.0" y2="133" stroke="#c9c9c4"/><text x="746.0" y="148" text-anchor="middle" class="ax">50</text>
+<text x="746" y="164" text-anchor="end" class="ax">归一化抗压强度 f<tspan baseline-shift="sub" font-size="9">b</tspan> (N/mm²)</text>
+<line x1="186.0" y1="58" x2="186.0" y2="128" stroke="#6b6b66" stroke-width="2" stroke-dasharray="2 4"/><text x="186.0" y="53" text-anchor="middle" class="rl" fill="#6b6b66">现行声明 10</text><line x1="563.5" y1="40" x2="563.5" y2="128" stroke="#8a5a00" stroke-width="2" stroke-dasharray="6 4"/><text x="563.5" y="35" text-anchor="middle" class="rl" fill="#8a5a00">Category I 上限 37.0</text><line x1="536.0" y1="76" x2="536.0" y2="128" stroke="#166b3f" stroke-width="2" /><text x="536.0" y="71" text-anchor="middle" class="rl" fill="#166b3f">建议声明 35</text><line x1="647.7" y1="58" x2="647.7" y2="128" stroke="#444" stroke-width="2" /><text x="647.7" y="53" text-anchor="middle" class="rl" fill="#444">归一化均值 43.0</text><circle cx="585.4" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件1: 实测 45.6 → 归一化 38.5 N/mm²</title></circle><circle cx="616.2" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件2: 实测 48.2 → 归一化 40.7 N/mm²</title></circle><circle cx="677.7" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件3: 实测 53.4 → 归一化 45.1 N/mm²</title></circle><circle cx="641.0" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件4: 实测 50.3 → 归一化 42.5 N/mm²</title></circle><circle cx="644.6" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件5: 实测 50.6 → 归一化 42.8 N/mm²</title></circle><circle cx="669.4" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件6: 实测 52.7 → 归一化 44.5 N/mm²</title></circle><circle cx="663.5" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件7: 实测 52.2 → 归一化 44.1 N/mm²</title></circle><circle cx="664.7" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件8: 实测 52.3 → 归一化 44.2 N/mm²</title></circle><circle cx="673.0" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件9: 实测 53.0 → 归一化 44.8 N/mm²</title></circle><circle cx="641.0" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件10: 实测 50.3 → 归一化 42.5 N/mm²</title></circle></svg>
+<p class="chartcap">蓝点 = 10 块单砖归一化强度（悬停查看原始值）；线：归一化均值 / Category I 上限 / 建议声明 / 现行声明 10。</p>
+<h3 style="margin-top:22px">分布与关键线 <span class="en">— N10</span></h3>
+<svg viewBox="0 0 760 168" role="img" aria-label="N10 归一化抗压强度分布">
+<line x1="46" y1="128" x2="746" y2="128" stroke="#c9c9c4"/><line x1="46.0" y1="128" x2="46.0" y2="133" stroke="#c9c9c4"/><text x="46.0" y="148" text-anchor="middle" class="ax">0</text><line x1="186.0" y1="128" x2="186.0" y2="133" stroke="#c9c9c4"/><text x="186.0" y="148" text-anchor="middle" class="ax">10</text><line x1="326.0" y1="128" x2="326.0" y2="133" stroke="#c9c9c4"/><text x="326.0" y="148" text-anchor="middle" class="ax">20</text><line x1="466.0" y1="128" x2="466.0" y2="133" stroke="#c9c9c4"/><text x="466.0" y="148" text-anchor="middle" class="ax">30</text><line x1="606.0" y1="128" x2="606.0" y2="133" stroke="#c9c9c4"/><text x="606.0" y="148" text-anchor="middle" class="ax">40</text><line x1="746.0" y1="128" x2="746.0" y2="133" stroke="#c9c9c4"/><text x="746.0" y="148" text-anchor="middle" class="ax">50</text>
+<text x="746" y="164" text-anchor="end" class="ax">归一化抗压强度 f<tspan baseline-shift="sub" font-size="9">b</tspan> (N/mm²)</text>
+<line x1="186.0" y1="58" x2="186.0" y2="128" stroke="#6b6b66" stroke-width="2" stroke-dasharray="2 4"/><text x="186.0" y="53" text-anchor="middle" class="rl" fill="#6b6b66">现行声明 10</text><line x1="396.6" y1="40" x2="396.6" y2="128" stroke="#8a5a00" stroke-width="2" stroke-dasharray="6 4"/><text x="396.6" y="35" text-anchor="middle" class="rl" fill="#8a5a00">Category I 上限 25.0</text><line x1="361.0" y1="76" x2="361.0" y2="128" stroke="#166b3f" stroke-width="2" /><text x="361.0" y="71" text-anchor="middle" class="rl" fill="#166b3f">建议声明 22.5</text><line x1="508.1" y1="58" x2="508.1" y2="128" stroke="#444" stroke-width="2" /><text x="508.1" y="53" text-anchor="middle" class="rl" fill="#444">归一化均值 33.0</text><circle cx="514.5" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件1: 实测 39.6 → 归一化 33.5 N/mm²</title></circle><circle cx="527.5" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件2: 实测 40.7 → 归一化 34.4 N/mm²</title></circle><circle cx="508.6" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件3: 实测 39.1 → 归一化 33.0 N/mm²</title></circle><circle cx="548.8" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件4: 实测 42.5 → 归一化 35.9 N/mm²</title></circle><circle cx="473.1" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件5: 实测 36.1 → 归一化 30.5 N/mm²</title></circle><circle cx="515.7" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件6: 实测 39.7 → 归一化 33.5 N/mm²</title></circle><circle cx="525.1" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件7: 实测 40.5 → 归一化 34.2 N/mm²</title></circle><circle cx="425.7" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件8: 实测 32.1 → 归一化 27.1 N/mm²</title></circle><circle cx="555.9" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件9: 实测 43.1 → 归一化 36.4 N/mm²</title></circle><circle cx="486.1" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5"><title>试件10: 实测 37.2 → 归一化 31.4 N/mm²</title></circle></svg>
+</div></div>
+
+<div class="step"><div class="no">6</div><div class="card">
+<h3 style="margin-top:0">EN 771-1 §5.3.4 符合性核验 <span class="en">Conformity check at recommended values</span></h3>
+<div class="tw" style="border:none"><table style="min-width:640px">
+<tr><th>检查项</th><th>要求</th><th>L10 @ 声明 35</th><th>N10 @ 声明 22.5</th></tr>
+<tr><th>批均值 ≥ 声明值</th><td>x̄_b ≥ D</td><td>43.0 ≥ 35 ✓</td><td>33.0 ≥ 22.5 ✓</td></tr>
+<tr><th>单块 ≥ 80% 声明值</th><td>min ≥ 0.8·D</td><td>min 38.5 ≥ 28.0 ✓</td><td>min 27.1 ≥ 18.0 ✓</td></tr>
+<tr><th>Category I（95% 置信）</th><td>D ≤ x̄_b − 2.911·s_b</td><td>35 ≤ 37.0 ✓</td><td>22.5 ≤ 25.0 ✓</td></tr>
 </table></div>
+<div class="callout"><b>结论：</b>L10 可声明 <b>35 N/mm²（Category I）</b>（上限 37.0）；N10 可声明 <b>22.5 N/mm²（Category I）</b>（上限 25.0）。现行 DoP 声明 10 合规但过度保守；上调需修订 DoP 并经 Lucideon 确认归一化口径。N20 / N30 仅有内部单点均值（35 / 46，自然态），无分布数据与第三方报告，<b>正式送检前不得声明</b>（原表 7.5 无据且低于 N10，应删除）。</div>
+<div class="caveat"><b>保留事项：</b>① Lucideon 两份单砖报告均注明 “The sample was deviating… result(s) may be invalid”（取样为厂家自行完成）——正式声明前需 Lucideon/BBA 确认其影响；② 养护若确认为“烘至恒重”（7.3.3），全部结果乘 0.8（L10 上限 → 29.6，N10 → 20.0）；③ n=10 为最小可用样本量，建议扩样后复核；④ δ 插值以 Table A.1 为准，最终以 Lucideon 官方归一化值为声明依据。</div>
+</div></div>
+</section>
 
-<h3>3. 特征值（5% 分位数）Characteristic value (5% fractile)</h3>
-<div class="formula">f_k = x̄ − k·s　　k = 1.64（大样本5%分位）　或　k = 2.911（n=10，5%分位数 @ 95%置信，单侧容忍限系数）</div>
-<p class="note">k=2.911 取自正态单侧容忍限表（n=10, p=95%, γ=95%）——严格满足“95% 置信”的要求；k=1.64 为常用简化。两者均列出。</p>
-
-<h3>4. 归一化 Normalisation (EN 772-1)</h3>
-<div class="formula">f_b = 条件换算系数 × δ × f（试件 102.5 mm 宽 × 65 mm 高，大面受压）
-δ = 0.845（Table A.1 插值：100mm宽/65mm高=0.85，140mm宽=0.77 → 102.5mm≈0.845，CBA Data Sheet 18）
-条件换算：气干为基准；浸水 ×1.2（标准明示）；105℃烘干→气干 采用 ×0.8（英国惯例，须经 Lucideon 按 Annex A 确认）</div>
-<div class="caveat"><b>为何要保守：</b>同一 L10 新配方，国标<b>自然态</b>抗压均值仅 24.9 N/mm²，约为烘干值 50.9 的一半——烘干态显著偏高，气干换算系数必然明显小于 1，×0.8 属合理偏保守的工程取值，最终以 Lucideon 官方归一化为准。</div>
-
-<h3>5. 计算结果 Results (N/mm²)</h3>
-<div class="tablewrap"><table class="calc">
-<tr><th rowspan="2"></th><th rowspan="2">f_k (k=1.64)</th><th rowspan="2">f_k (k=2.911, 95%置信)</th><th colspan="2">归一化 f_b,k = f_k × δ(0.845) × 条件系数</th></tr>
-<tr><th>×1.0（不含烘干换算 upper bound）</th><th>×0.8（保守 conservative）</th></tr>
-<tr><td class="l"><b>L10</b></td><td>46.85</td><td>43.75</td><td>39.6 / 37.0</td><td>31.7 / <b>29.6</b></td></tr>
-<tr class="hl"><td class="l"><b>N10</b></td><td>33.75</td><td>29.64</td><td>28.5 / 25.0</td><td>22.8 / <b>20.0</b></td></tr>
-</table></div>
-<p class="note">每格两值分别对应 k=1.64 / k=2.911。加粗为“95%置信 + 保守条件换算”的最保守链条。</p>
-
-<h3>6. 结论与建议 Conclusion &amp; recommendation</h3>
-<div class="card" style="background:#f2f8f3">
-<ul style="margin-left:20px;font-size:.92rem;line-height:1.9">
-<li><b>L10</b>：最保守特征归一化强度 <b>f<sub>b,k</sub> ≈ 29.6 N/mm²</b> → 声明值可定 <b>25</b>（留margin）；上限不应超过 29。</li>
-<li><b>N10</b>：最保守 <b>f<sub>b,k</sub> ≈ 20.0 N/mm²</b> → 声明值可定 <b>15</b>；现行已签 DoP 声明 10 合规且非常保守，如上调需重签 DoP。</li>
-<li><b>N20 / N30</b>：仅有内部单点均值（35 / 46，自然态），<b>无分布数据、非第三方</b>——按 EN 771-1 无法计算特征值，<b>正式送检前不得声明任何数值</b>（原表 7.5 应删除）。</li>
-<li>请 Lucideon 出具<b>官方归一化特征强度</b>（确认烘干→气干换算系数与 δ），以其为最终声明依据。</li>
-</ul>
-</div>
-<div class="caveat">
-<b>限制条件 Caveats：</b>
-① Lucideon 两份单砖报告均印有 “The sample was deviating and as a result, the test result(s) may be invalid.”（取样由厂家自行完成、方法未提供）——声明前应与 Lucideon/BBA 确认该保留意见的影响；
-② δ=0.845 为 CBA 表插值，正式声明以 EN 772-1 Table A.1 为准；
-③ 烘干→气干 ×0.8 为工程取值，须按 EN 772-1 Annex A 正式确认；
-④ n=10 样本量下建议保留 k=2.911 的严格口径。
-</div>
-</div>
+<section id="orig">
+<h2>③ 原版表对照 <span class="en">Original table (June 2026), annotated</span></h2>
+<p class="sub">按原市场版逐格重建：<span style="background:var(--err-soft);padding:0 6px;border-radius:4px">红=与实测/记录矛盾</span>　<span style="background:var(--amber-soft);padding:0 6px;border-radius:4px">黄=无依据或口径问题</span>。表头 “UKCA/CE/EPD certified” 亦不准确：N10 证书已签发+EPD 已发布；L10 证书草稿、无 EPD；N30 仅 EPD；N20 均无。</p>
+<div class="tw"><table><tbody><tr><th></th><td class='ph'>L0<i>无粘结剂</i></td><td class='ph'>L10<i>10%常规石灰</i></td><td class='ph'>N10<i>10% e4E石灰</i></td><td class='ph'>N20<i>20% e4E石灰</i></td><td class='ph'>N30<i>30% e4E石灰</i></td></tr><tr><th>Colour*</th><td class="">Dark grey</td><td class="">Grey</td><td class="">Grey</td><td class="">Light grey</td><td class="">White-grey</td></tr><tr><th>Dimensions (mm)</th><td class="">215×102.5×65</td><td class="">215×102.5×65</td><td class="">215×102.5×65</td><td class="">215×102.5×65</td><td class="">215×102.5×65</td></tr><tr><th>Tolerance category</th><td class="">T2</td><td class="">T2†</td><td class="">T2†</td><td class="">T2</td><td class="">T2</td></tr><tr><th>Range category</th><td class="">R2</td><td class="">R2†</td><td class="">R2†</td><td class="">R2</td><td class="e">R1<i>应为 R2</i></td></tr><tr><th>Mean compressive strength</th><td class="">7</td><td class="">50.9†</td><td class="">39.1†</td><td class="w">35<i>自然态·养护口径混用</i></td><td class="w">46<i>自然态·养护口径混用</i></td></tr><tr><th>Declared compressive strength</th><td class="">3.5</td><td class="">10</td><td class="">10</td><td class="e">7.5<i>无依据且低于N10</i></td><td class="e">7.5<i>无依据且低于N10</i></td></tr><tr><th>Masonry compressive strength</th><td class="">tbc</td><td class="">6.28†</td><td class="">7.06†</td><td class="">tbc</td><td class="">tbc</td></tr><tr><th>Water absorption</th><td class="">N/A</td><td class="e">14%<i>实测13%</i></td><td class="e">10%<i>内部11.8%</i></td><td class="e">14%<i>未测</i></td><td class="e">17%<i>内部10.2%，方向亦反</i></td></tr><tr><th>Initial rate of water absorption</th><td class="">tbc</td><td class="">0.5†</td><td class="">1.1†</td><td class="">tbc</td><td class="">tbc</td></tr><tr><th>Water vapour permeability</th><td class="">tbc</td><td class="e">0.035†<i>实测0.068</i></td><td class="w">0.048†<i>DoP为0.043</i></td><td class="">tbc</td><td class="">tbc</td></tr><tr><th>Equivalent thermal conductivity</th><td class="">0.8</td><td class="w">0.9<i>矩阵Pending</i></td><td class="">0.9</td><td class="w">0.8<i>Pending</i></td><td class="w">0.8<i>Pending</i></td></tr><tr><th>Specific heat capacity</th><td class="">0.84</td><td class="w">0.78<i>Pending</i></td><td class="">0.84</td><td class="w">0.78<i>Pending</i></td><td class="w">0.86<i>Pending</i></td></tr><tr><th>Active soluble salts content</th><td class="">S2</td><td class="">S2†</td><td class="">S2†</td><td class="w">S2<i>未测</i></td><td class="w">S2<i>未测</i></td></tr><tr><th>Reaction to fire</th><td class="">A1</td><td class="">A1†</td><td class="">A1†</td><td class="w">A1<i>未测(CWFT待确认)</i></td><td class="w">A1<i>未测(CWFT待确认)</i></td></tr><tr><th>Fire resistance</th><td class="">tbc</td><td class="e">264 minutes§†<i>档案无EN13501-2报告</i></td><td class="e">264 minutes§†<i>档案无EN13501-2报告</i></td><td class="">tbc</td><td class="">tbc</td></tr></tbody></table></div>
 </section>
 
 <section id="wa">
-<h2>④ 吸水率数据来源 Water Absorption — Source &amp; Grade</h2>
-<div class="card">
-<div class="tablewrap"><table class="calc">
-<tr><th>产品 Product</th><th>数值 Value</th><th>数据等级 Grade</th><th>来源文件 Source</th><th>备注 Remarks</th></tr>
-<tr class="hl"><td><b>L10</b></td><td><b>13%</b></td><td>† 第三方 Third-party</td><td class="l">SGS SHIN2511002964CM05（个体12–13%，均值13%）＋ 国标 JC202506061（13%，限值≤15%）</td><td class="l">两家第三方一致；另 SGS 防潮层5h沸煮法 12.1%</td></tr>
-<tr><td><b>N10</b></td><td>11.8%</td><td>‡ 内部实验室 Internal lab</td><td class="l">UKCA-2026 内部性能矩阵（LAB 列 0.1183）</td><td class="l">尚无第三方24h吸水报告——建议纳入下轮送检</td></tr>
-<tr><td><b>N20</b></td><td>tbc</td><td>— 未检测 Not tested</td><td class="l">—</td><td class="l">矩阵为 Pending</td></tr>
-<tr><td><b>N30</b></td><td>10.2%</td><td>‡ 内部实验室 Internal lab</td><td class="l">UKCA-2026 内部性能矩阵（LAB 列 0.1024）</td><td class="l">原表 17% 无出处且方向相反（掺量↑吸水↓）</td></tr>
-<tr><td><b>L0</b></td><td>N/A</td><td>—</td><td class="l">—</td><td class="l">无粘结剂参照制品</td></tr>
+<h2>④ 吸水率数据来源 <span class="en">Water absorption — source &amp; grade</span></h2>
+<div class="tw"><table style="min-width:720px">
+<tr><th>产品</th><th>数值</th><th>等级</th><th>来源</th><th>说明</th></tr>
+<tr><th>L10</th><td><b>13%</b></td><td><span class="b tp" title="第三方检测 third-party tested">†第三方</span></td><td>SGS SHIN2511002964CM05（个体 12–13%）；国标 JC202506061（13%，限值 ≤15%）</td><td>两家第三方一致；SGS 防潮层 5h 沸煮法另测 12.1%</td></tr>
+<tr><th>N10</th><td>11.8%</td><td><span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span></td><td>UKCA-2026 内部矩阵（LAB 0.1183）</td><td>无第三方 24h 吸水报告，建议纳入下轮送检</td></tr>
+<tr><th>N20</th><td><span class="b tbc">tbc</span></td><td>—</td><td>—</td><td>未检测</td></tr>
+<tr><th>N30</th><td>10.2%</td><td><span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span></td><td>UKCA-2026 内部矩阵（LAB 0.1024）</td><td>原表 17% 无出处且方向相反（掺量↑吸水↓）</td></tr>
+<tr><th>L0</th><td>N/A</td><td>—</td><td>—</td><td>无粘结剂参照制品</td></tr>
 </table></div>
-<p class="note">注意区分两项指标：<b>吸水率 Water absorption</b>（24h 浸水，%，EN 772-21/JC/T 422）与<b>初始吸水率 IRWA</b>（kg/(m²·min)，EN 772-11）——L10 0.5† / N10 1.1†。
-Two distinct metrics: 24-h water absorption (%) vs initial rate of water absorption (kg/(m²·min)).</p>
-</div>
+<p class="sub" style="margin-top:10px">区分两个指标：吸水率（24h 浸水，%，EN 772-21 / JC/T 422）与初始吸水率 IRWA（kg/(m²·min)，EN 772-11：L10 0.5†，N10 1.1†）。</p>
 </section>
 
-<section id="downloads">
-<h2>⑤ 源文件下载 Source Documents (41 files, 28 MB)</h2>
-<p class="note">本页所有结论均可追溯至以下原始文件（双语命名）。All conclusions traceable to these source documents (bilingual filenames).</p>
-<div class="dlgroup"><h4>汇总报告 Summary Reports</h4><p class="dlsub">整理报告(Word) + 汇总表(Excel, 14表)</p><ul><li><a href="files/00-summary/%E8%AE%A4%E8%AF%81%E6%A3%80%E6%B5%8B%E8%B5%84%E6%96%99%E6%95%B4%E7%90%86%E6%8A%A5%E5%91%8A%20Certification%20Report.docx" download>认证检测资料整理报告 Certification Report.docx</a> <span class="sz">44 KB</span></li><li><a href="files/00-summary/%E8%AE%A4%E8%AF%81%E6%A3%80%E6%B5%8B%E8%B5%84%E6%96%99%E6%B1%87%E6%80%BB%E8%A1%A8%20Certification%20Summary.xlsx" download>认证检测资料汇总表 Certification Summary.xlsx</a> <span class="sz">101 KB</span></li></ul></div>
-<div class="dlgroup"><h4>国标检测 China GB (HBQI)</h4><p class="dlsub">湖北省产品质量监督检验研究院 · L10 新/旧配方检验报告</p><ul><li><a href="files/01-china-gb/%E5%9B%BD%E6%A0%87%20L10%E6%96%B0%E9%85%8D%E6%96%B9%20%E5%A4%96%E8%A7%82-%E5%B0%BA%E5%AF%B8-%E5%BC%BA%E5%BA%A6%20%E5%90%88%E6%A0%BC%20JC202506060%28%E7%AD%BE%E5%90%8D%E7%89%88%29%20GB%20L10%20NewFormula%20Appearance-Dim-Strength%20PASS%20JC202506060%20Signed.pdf" download>国标 L10新配方 外观-尺寸-强度 合格 JC202506060(签名版) GB L10 NewFormula Appearance-Dim-Strength PASS JC202506060 Signed.pdf</a> <span class="sz">859 KB</span></li><li><a href="files/01-china-gb/%E5%9B%BD%E6%A0%87%20L10%E6%96%B0%E9%85%8D%E6%96%B9%20%E5%BC%BA%E5%BA%A6%20%E5%A4%8D%E6%B5%8B%20%E5%90%88%E6%A0%BC%20JC202505774%28%E7%AD%BE%E5%90%8D%E7%89%88%29%20GB%20L10%20NewFormula%20Compressive%20Retest%20PASS%20JC202505774%20Signed.pdf" download>国标 L10新配方 强度 复测 合格 JC202505774(签名版) GB L10 NewFormula Compressive Retest PASS JC202505774 Signed.pdf</a> <span class="sz">1.3 MB</span></li><li><a href="files/01-china-gb/%E5%9B%BD%E6%A0%87%20L10%E6%96%B0%E9%85%8D%E6%96%B9%20%E6%8A%97%E5%86%BB-%E8%BD%AF%E5%8C%96%20%E5%A4%8D%E6%B5%8B%20%E5%90%88%E6%A0%BC%20JC202505773%20GB%20L10%20NewFormula%20Freeze-Softening%20Retest%20PASS%20JC202505773.pdf" download>国标 L10新配方 抗冻-软化 复测 合格 JC202505773 GB L10 NewFormula Freeze-Softening Retest PASS JC202505773.pdf</a> <span class="sz">1.3 MB</span></li><li><a href="files/01-china-gb/%E5%9B%BD%E6%A0%87%20L10%E6%96%B0%E9%85%8D%E6%96%B9%20%E6%8A%97%E5%86%BBD25-%E5%90%B8%E6%B0%B4-%E7%A2%B3%E5%8C%96-%E8%BD%AF%E5%8C%96-%E6%94%BE%E5%B0%84%E6%80%A7%20%E5%90%88%E6%A0%BC%20JC202506061%20GB%20L10%20NewFormula%20FreezeD25-WA-Carbonation-Softening-Radioactivity%20PASS%20JC20.pdf" download>国标 L10新配方 抗冻D25-吸水-碳化-软化-放射性 合格 JC202506061 GB L10 NewFormula FreezeD25-WA-Carbonation-Softening-Radioactivity PASS JC20.pdf</a> <span class="sz">1.4 MB</span></li><li><a href="files/01-china-gb/%E5%9B%BD%E6%A0%87%20L10%E6%97%A7%E9%85%8D%E6%96%B9%20%E5%A4%96%E8%A7%82-%E5%B0%BA%E5%AF%B8-%E5%90%B8%E6%B0%B4-%E6%94%B6%E7%BC%A9-%E6%94%BE%E5%B0%84%E6%80%A7%20%E5%90%88%E6%A0%BC%20JC202504308%20GB%20L10%20OldFormula%20Appearance-Dim-WA-Shrink-Radioactivity%20PASS%20JC202504308.pdf" download>国标 L10旧配方 外观-尺寸-吸水-收缩-放射性 合格 JC202504308 GB L10 OldFormula Appearance-Dim-WA-Shrink-Radioactivity PASS JC202504308.pdf</a> <span class="sz">1.3 MB</span></li><li><a href="files/01-china-gb/%E5%9B%BD%E6%A0%87%20L10%E6%97%A7%E9%85%8D%E6%96%B9%20%E5%BC%BA%E5%BA%A6-%E6%8A%97%E5%86%BB-%E7%A2%B3%E5%8C%96-%E8%BD%AF%E5%8C%96%20%E6%8A%97%E5%86%BB%2B%E8%BD%AF%E5%8C%96%E4%B8%8D%E5%90%88%E6%A0%BC%20JC202505934%20GB%20L10%20OldFormula%20Strength-Freeze-Carbonation-Softening%20FAIL%28freeze%2Bsoft%29%20JC2.pdf" download>国标 L10旧配方 强度-抗冻-碳化-软化 抗冻+软化不合格 JC202505934 GB L10 OldFormula Strength-Freeze-Carbonation-Softening FAIL(freeze+soft) JC2.pdf</a> <span class="sz">1.3 MB</span></li></ul></div>
-<div class="dlgroup"><h4>Lucideon 检测 (UKAS 0013)</h4><p class="dlsub">L10/N10 单砖 EN772 系列 + 砌体 EN1052 系列</p><ul><li><a href="files/02-lucideon/Lucideon%20L10%E5%8D%95%E7%A0%96%20%E5%8F%AF%E6%BA%B6%E7%9B%90%20EN772-5%20Lucideon%20L10%20Brick%20Active%20Soluble%20Salts%20N26730.pdf" download>Lucideon L10单砖 可溶盐 EN772-5 Lucideon L10 Brick Active Soluble Salts N26730.pdf</a> <span class="sz">328 KB</span></li><li><a href="files/02-lucideon/Lucideon%20L10%E5%8D%95%E7%A0%96%20%E5%B0%BA%E5%AF%B8-%E5%90%B8%E6%B0%B4-%E5%BC%BA%E5%BA%A6-%E5%90%AB%E6%B0%B4-%E5%AF%86%E5%BA%A6%20EN772%20Lucideon%20L10%20Brick%20Dimensions-WA-Strength-Moisture-Density%20N26730.pdf" download>Lucideon L10单砖 尺寸-吸水-强度-含水-密度 EN772 Lucideon L10 Brick Dimensions-WA-Strength-Moisture-Density N26730.pdf</a> <span class="sz">745 KB</span></li><li><a href="files/02-lucideon/Lucideon%20L10%E7%A0%8C%E4%BD%93%20%E5%88%9D%E5%A7%8B%E6%8A%97%E5%89%AA%20EN1052-3%20Lucideon%20L10%20Masonry%20Initial%20Shear%20N26458.pdf" download>Lucideon L10砌体 初始抗剪 EN1052-3 Lucideon L10 Masonry Initial Shear N26458.pdf</a> <span class="sz">1.0 MB</span></li><li><a href="files/02-lucideon/Lucideon%20L10%E7%A0%8C%E4%BD%93%20%E6%8A%97%E5%8E%8B%E5%BC%BA%E5%BA%A6%20EN1052-1%20Lucideon%20L10%20Masonry%20Compressive%20Strength%20N26458.pdf" download>Lucideon L10砌体 抗压强度 EN1052-1 Lucideon L10 Masonry Compressive Strength N26458.pdf</a> <span class="sz">1000 KB</span></li><li><a href="files/02-lucideon/Lucideon%20L10%E7%A0%8C%E4%BD%93%20%E6%8A%97%E5%BC%AF%E5%BC%BA%E5%BA%A6%20EN1052-2%20Lucideon%20L10%20Masonry%20Flexural%20Strength%20N26458.pdf" download>Lucideon L10砌体 抗弯强度 EN1052-2 Lucideon L10 Masonry Flexural Strength N26458.pdf</a> <span class="sz">488 KB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E5%8D%95%E7%A0%96%20%E5%8F%AF%E6%BA%B6%E7%9B%90%20EN772-5%20Lucideon%20N10%20Brick%20Active%20Soluble%20Salts%20N253627.pdf" download>Lucideon N10单砖 可溶盐 EN772-5 Lucideon N10 Brick Active Soluble Salts N253627.pdf</a> <span class="sz">328 KB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E5%8D%95%E7%A0%96%20%E5%90%AB%E6%B0%B4%E7%A7%BB%E5%8A%A8%20EN772-14%20Lucideon%20N10%20Brick%20Moisture%20Movement%20N253627.pdf" download>Lucideon N10单砖 含水移动 EN772-14 Lucideon N10 Brick Moisture Movement N253627.pdf</a> <span class="sz">322 KB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E5%8D%95%E7%A0%96%20%E6%8A%97%E5%8E%8B-%E5%AF%86%E5%BA%A6-%E5%B0%BA%E5%AF%B8-%E5%B9%B3%E6%95%B4-%E5%90%B8%E6%B0%B4%20EN772%20Lucideon%20N10%20Brick%20Compressive-Density-Dim-Flatness-IRWA%20N253627.pdf" download>Lucideon N10单砖 抗压-密度-尺寸-平整-吸水 EN772 Lucideon N10 Brick Compressive-Density-Dim-Flatness-IRWA N253627.pdf</a> <span class="sz">338 KB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E7%A0%8C%E4%BD%93%20%E5%88%9D%E5%A7%8B%E6%8A%97%E5%89%AA%20EN1052-3%20Lucideon%20N10%20Masonry%20Initial%20Shear%20N26458.pdf" download>Lucideon N10砌体 初始抗剪 EN1052-3 Lucideon N10 Masonry Initial Shear N26458.pdf</a> <span class="sz">1.0 MB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E7%A0%8C%E4%BD%93%20%E6%8A%97%E5%8E%8B%E5%BC%BA%E5%BA%A6%20EN1052-1%20Lucideon%20N10%20Masonry%20Compressive%20Strength%20N26458.pdf" download>Lucideon N10砌体 抗压强度 EN1052-1 Lucideon N10 Masonry Compressive Strength N26458.pdf</a> <span class="sz">1009 KB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E7%A0%8C%E4%BD%93%20%E6%8A%97%E5%BC%AF%E5%BC%BA%E5%BA%A6%20EN1052-2%20Lucideon%20N10%20Masonry%20Flexural%20Strength%20N26458.pdf" download>Lucideon N10砌体 抗弯强度 EN1052-2 Lucideon N10 Masonry Flexural Strength N26458.pdf</a> <span class="sz">504 KB</span></li></ul></div>
-<div class="dlgroup"><h4>Warringtonfire 防火 Fire</h4><p class="dlsub">EN 13501-1 反应分级正式版 A1/A1FL (2026-06-18)</p><ul><li><a href="files/03-fire/%E9%98%B2%E7%81%AB%20L10%20%E5%8F%8D%E5%BA%94%E5%88%86%E7%BA%A7%E6%AD%A3%E5%BC%8F%E7%89%88%20A1-A1FL%20EN13501-1%20Fire%20L10%20Reaction%20Classification%20FINAL%20A1%20EN13501-1%20%23557889.pdf" download>防火 L10 反应分级正式版 A1-A1FL EN13501-1 Fire L10 Reaction Classification FINAL A1 EN13501-1 #557889.pdf</a> <span class="sz">468 KB</span></li><li><a href="files/03-fire/%E9%98%B2%E7%81%AB%20N10%20%E5%8F%8D%E5%BA%94%E5%88%86%E7%BA%A7%E6%AD%A3%E5%BC%8F%E7%89%88%20A1-A1FL%20EN13501-1%20Fire%20N10%20Reaction%20Classification%20FINAL%20A1%20EN13501-1%20%23557890.pdf" download>防火 N10 反应分级正式版 A1-A1FL EN13501-1 Fire N10 Reaction Classification FINAL A1 EN13501-1 #557890.pdf</a> <span class="sz">468 KB</span></li></ul></div>
-<div class="dlgroup"><h4>UKCA / CE</h4><p class="dlsub">SGS 测试 · 上海建科透湿 · 符合性证书 · DoP · 内部性能矩阵</p><ul><li><a href="files/04-ukca-ce/CE%20%E6%80%A7%E8%83%BD%E5%A3%B0%E6%98%8E%20DoP%20N10%20%E5%B7%B2%E7%AD%BE%20CE%20Declaration%20of%20Performance%20N10%20%28signed%29.pdf" download>CE 性能声明 DoP N10 已签 CE Declaration of Performance N10 (signed).pdf</a> <span class="sz">93 KB</span></li><li><a href="files/04-ukca-ce/CE-UKCA%20%E6%A0%87%E8%AF%86%E6%A0%87%E7%AD%BE%E8%AF%B4%E6%98%8E%20CEUKCA%20Labelling%20Guidance.docx" download>CE-UKCA 标识标签说明 CEUKCA Labelling Guidance.docx</a> <span class="sz">29 KB</span></li><li><a href="files/04-ukca-ce/N10%20%E6%80%A7%E8%83%BD%E5%A3%B0%E6%98%8E%20DoP%20%E5%AE%8C%E6%95%B4%20N10%20Declaration%20of%20Performance%20%28full%29.pdf" download>N10 性能声明 DoP 完整 N10 Declaration of Performance (full).pdf</a> <span class="sz">143 KB</span></li><li><a href="files/04-ukca-ce/N10%20%E6%80%A7%E8%83%BD%E5%A3%B0%E6%98%8E%20DoP%20%E5%AE%8C%E6%95%B4%28docx%29%20N10%20Declaration%20of%20Performance%20%28full%2C%20docx%29.docx" download>N10 性能声明 DoP 完整(docx) N10 Declaration of Performance (full, docx).docx</a> <span class="sz">62 KB</span></li><li><a href="files/04-ukca-ce/SGS%20L10%20VOC%E9%87%8A%E6%94%BE%20EN16516%20SGS%20L10%20VOC%20Emissions%20EN16516.pdf" download>SGS L10 VOC释放 EN16516 SGS L10 VOC Emissions EN16516.pdf</a> <span class="sz">768 KB</span></li><li><a href="files/04-ukca-ce/SGS%20L10%20%E5%90%B8%E6%B0%B4%E7%8E%87%20EN772-21%20SGS%20L10%20Water%20Absorption%20EN772-21.pdf" download>SGS L10 吸水率 EN772-21 SGS L10 Water Absorption EN772-21.pdf</a> <span class="sz">525 KB</span></li><li><a href="files/04-ukca-ce/SGS%20L10%20%E5%B0%BA%E5%AF%B8%E5%81%8F%E5%B7%AE%20EN772-16%20SGS%20L10%20Dimension%20%26%20Tolerances%20EN772-16.pdf" download>SGS L10 尺寸偏差 EN772-16 SGS L10 Dimension & Tolerances EN772-16.pdf</a> <span class="sz">514 KB</span></li><li><a href="files/04-ukca-ce/SGS%20L10%20%E5%B9%B2%E5%AF%86%E5%BA%A6%20EN772-13%20SGS%20L10%20Dry%20Density%20EN772-13.pdf" download>SGS L10 干密度 EN772-13 SGS L10 Dry Density EN772-13.pdf</a> <span class="sz">524 KB</span></li><li><a href="files/04-ukca-ce/SGS%20L10%20%E5%B9%B3%E6%95%B4%E5%BA%A6%E4%B8%8E%E5%B9%B3%E8%A1%8C%E5%BA%A6%20EN772-20%20SGS%20L10%20Flatness%20%26%20Plane%20Parallelism%20EN772-20.pdf" download>SGS L10 平整度与平行度 EN772-20 SGS L10 Flatness & Plane Parallelism EN772-20.pdf</a> <span class="sz">515 KB</span></li><li><a href="files/04-ukca-ce/SGS%20L10%20%E6%8A%97%E5%8E%8B%E5%BC%BA%E5%BA%A6%20EN772-1%20SGS%20L10%20Compressive%20Strength%20EN772-1.pdf" download>SGS L10 抗压强度 EN772-1 SGS L10 Compressive Strength EN772-1.pdf</a> <span class="sz">522 KB</span></li><li><a href="files/04-ukca-ce/SGS%20%E7%AC%A6%E5%90%88%E6%80%A7%E8%AF%81%E4%B9%A6%20CE%20L10%20SGS%20Verification%20of%20Conformity%20CE%20L10%20%2325550.pdf" download>SGS 符合性证书 CE L10 SGS Verification of Conformity CE L10 #25550.pdf</a> <span class="sz">111 KB</span></li><li><a href="files/04-ukca-ce/SGS%20%E7%AC%A6%E5%90%88%E6%80%A7%E8%AF%81%E4%B9%A6%20CE%20N10%20%E5%B7%B2%E7%AD%BE%E5%8F%91%20SGS%20Verification%20of%20Conformity%20CE%20N10%20%2324438.pdf" download>SGS 符合性证书 CE N10 已签发 SGS Verification of Conformity CE N10 #24438.pdf</a> <span class="sz">3.2 MB</span></li><li><a href="files/04-ukca-ce/SGS%20%E7%AC%A6%E5%90%88%E6%80%A7%E8%AF%81%E4%B9%A6%20UKCA%20L10%20SGS%20Verification%20of%20Conformity%20UKCA%20L10%20%2325550.pdf" download>SGS 符合性证书 UKCA L10 SGS Verification of Conformity UKCA L10 #25550.pdf</a> <span class="sz">111 KB</span></li><li><a href="files/04-ukca-ce/SGS%20%E7%AC%A6%E5%90%88%E6%80%A7%E8%AF%81%E4%B9%A6%20UKCA%20N10%20%E5%B7%B2%E7%AD%BE%E5%8F%91%20SGS%20Verification%20of%20Conformity%20UKCA%20N10%20%2324439.pdf" download>SGS 符合性证书 UKCA N10 已签发 SGS Verification of Conformity UKCA N10 #24439.pdf</a> <span class="sz">3.1 MB</span></li><li><a href="files/04-ukca-ce/UKCA%20%E5%86%85%E9%83%A8%E6%80%A7%E8%83%BD%E6%B1%87%E6%80%BB%E8%A1%A8%20L0-L10-N10-N20-N30%20UKCA%20Internal%20Performance%20Matrix.xlsx" download>UKCA 内部性能汇总表 L0-L10-N10-N20-N30 UKCA Internal Performance Matrix.xlsx</a> <span class="sz">18 KB</span></li><li><a href="files/04-ukca-ce/UKCA%20%E6%80%A7%E8%83%BD%E5%A3%B0%E6%98%8E%20DoP%20N10%20%E5%B7%B2%E7%AD%BE%20UKCA%20Declaration%20of%20Performance%20N10%20%28signed%29.pdf" download>UKCA 性能声明 DoP N10 已签 UKCA Declaration of Performance N10 (signed).pdf</a> <span class="sz">94 KB</span></li><li><a href="files/04-ukca-ce/%E4%B8%8A%E6%B5%B7%E5%BB%BA%E7%A7%91%20L10%20%E6%B0%B4%E8%92%B8%E6%B0%94%E9%80%8F%E6%B9%BF%20ISO12572%20SRIBS%20L10%20Water%20Vapour%20Permeability%20ISO12572%20JR228.pdf" download>上海建科 L10 水蒸气透湿 ISO12572 SRIBS L10 Water Vapour Permeability ISO12572 JR228.pdf</a> <span class="sz">515 KB</span></li></ul></div>
-<div class="dlgroup"><h4>EPD 环境产品声明</h4><p class="dlsub">N10 HUB-3866 · N30 HUB-4829 · 核验意见</p><ul><li><a href="files/05-epd/EPD%20N10%20%E7%8E%AF%E5%A2%83%E4%BA%A7%E5%93%81%E5%A3%B0%E6%98%8E%20%E5%AE%98%E7%BD%91%20HUB-3866%20EPD%20N10%20EPD%20%28website%29%20HUB-3866.pdf" download>EPD N10 环境产品声明 官网 HUB-3866 EPD N10 EPD (website) HUB-3866.pdf</a> <span class="sz">785 KB</span></li><li><a href="files/05-epd/EPD%20N30%20%E7%8E%AF%E5%A2%83%E4%BA%A7%E5%93%81%E5%A3%B0%E6%98%8E%20%E5%AE%98%E7%BD%91%20HUB-4829%20EPD%20N30%20EPD%20%28website%29%20HUB-4829.pdf" download>EPD N30 环境产品声明 官网 HUB-4829 EPD N30 EPD (website) HUB-4829.pdf</a> <span class="sz">776 KB</span></li><li><a href="files/05-epd/EPD%20%E6%A0%B8%E9%AA%8C%E6%84%8F%E8%A7%81%20N10%20EPD%20Verification%20Comments%20N10.pdf" download>EPD 核验意见 N10 EPD Verification Comments N10.pdf</a> <span class="sz">277 KB</span></li></ul></div>
+<section id="dl">
+<h2>⑤ 源文件下载 <span class="en">Source documents（15 files · 8 MB）</span></h2>
+<p class="sub">仅收录本页直接引用的证据文件（双语命名）。BS EN 771-1 / 772-1 标准文本受 BSI 版权保护不提供下载，本页仅引用条款号（§5.3.4、§8.3.1、7.3.2/7.3.3、附录 A Table A.1）。</p>
+<div class="dl"><h4>国标 China GB · HBQI</h4><p>吸水率13%印证 · 自然态强度24.9对照</p><ul><li><a href="files/01-china-gb/%E5%9B%BD%E6%A0%87%20L10%E6%96%B0%E9%85%8D%E6%96%B9%20%E5%A4%96%E8%A7%82-%E5%B0%BA%E5%AF%B8-%E5%BC%BA%E5%BA%A6%20%E5%90%88%E6%A0%BC%20JC202506060%28%E7%AD%BE%E5%90%8D%E7%89%88%29%20GB%20L10%20NewFormula%20Appearance-Dim-Strength%20PASS%20JC202506060%20Signed.pdf" download>国标 L10新配方 外观-尺寸-强度 合格 JC202506060(签名版) GB L10 NewFormula Appearance-Dim-Strength PASS JC202506060 Signed.pdf</a><span>859 KB</span></li><li><a href="files/01-china-gb/%E5%9B%BD%E6%A0%87%20L10%E6%96%B0%E9%85%8D%E6%96%B9%20%E6%8A%97%E5%86%BBD25-%E5%90%B8%E6%B0%B4-%E7%A2%B3%E5%8C%96-%E8%BD%AF%E5%8C%96-%E6%94%BE%E5%B0%84%E6%80%A7%20%E5%90%88%E6%A0%BC%20JC202506061%20GB%20L10%20NewFormula%20FreezeD25-WA-Carbonation-Softening-Radioactivity%20PASS%20JC20.pdf" download>国标 L10新配方 抗冻D25-吸水-碳化-软化-放射性 合格 JC202506061 GB L10 NewFormula FreezeD25-WA-Carbonation-Softening-Radioactivity PASS JC20.pdf</a><span>1.4 MB</span></li></ul></div><div class="dl"><h4>Lucideon · UKAS 0013</h4><p>单砖抗压/尺寸/吸水/可溶盐 · 砌体抗压 fk</p><ul><li><a href="files/02-lucideon/Lucideon%20L10%E5%8D%95%E7%A0%96%20%E5%8F%AF%E6%BA%B6%E7%9B%90%20EN772-5%20Lucideon%20L10%20Brick%20Active%20Soluble%20Salts%20N26730.pdf" download>Lucideon L10单砖 可溶盐 EN772-5 Lucideon L10 Brick Active Soluble Salts N26730.pdf</a><span>328 KB</span></li><li><a href="files/02-lucideon/Lucideon%20L10%E5%8D%95%E7%A0%96%20%E5%B0%BA%E5%AF%B8-%E5%90%B8%E6%B0%B4-%E5%BC%BA%E5%BA%A6-%E5%90%AB%E6%B0%B4-%E5%AF%86%E5%BA%A6%20EN772%20Lucideon%20L10%20Brick%20Dimensions-WA-Strength-Moisture-Density%20N26730.pdf" download>Lucideon L10单砖 尺寸-吸水-强度-含水-密度 EN772 Lucideon L10 Brick Dimensions-WA-Strength-Moisture-Density N26730.pdf</a><span>745 KB</span></li><li><a href="files/02-lucideon/Lucideon%20L10%E7%A0%8C%E4%BD%93%20%E6%8A%97%E5%8E%8B%E5%BC%BA%E5%BA%A6%20EN1052-1%20Lucideon%20L10%20Masonry%20Compressive%20Strength%20N26458.pdf" download>Lucideon L10砌体 抗压强度 EN1052-1 Lucideon L10 Masonry Compressive Strength N26458.pdf</a><span>1000 KB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E5%8D%95%E7%A0%96%20%E5%8F%AF%E6%BA%B6%E7%9B%90%20EN772-5%20Lucideon%20N10%20Brick%20Active%20Soluble%20Salts%20N253627.pdf" download>Lucideon N10单砖 可溶盐 EN772-5 Lucideon N10 Brick Active Soluble Salts N253627.pdf</a><span>328 KB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E5%8D%95%E7%A0%96%20%E6%8A%97%E5%8E%8B-%E5%AF%86%E5%BA%A6-%E5%B0%BA%E5%AF%B8-%E5%B9%B3%E6%95%B4-%E5%90%B8%E6%B0%B4%20EN772%20Lucideon%20N10%20Brick%20Compressive-Density-Dim-Flatness-IRWA%20N253627.pdf" download>Lucideon N10单砖 抗压-密度-尺寸-平整-吸水 EN772 Lucideon N10 Brick Compressive-Density-Dim-Flatness-IRWA N253627.pdf</a><span>338 KB</span></li><li><a href="files/02-lucideon/Lucideon%20N10%E7%A0%8C%E4%BD%93%20%E6%8A%97%E5%8E%8B%E5%BC%BA%E5%BA%A6%20EN1052-1%20Lucideon%20N10%20Masonry%20Compressive%20Strength%20N26458.pdf" download>Lucideon N10砌体 抗压强度 EN1052-1 Lucideon N10 Masonry Compressive Strength N26458.pdf</a><span>1009 KB</span></li></ul></div><div class="dl"><h4>Warringtonfire</h4><p>EN 13501-1 反应分级正式版 A1/A1FL</p><ul><li><a href="files/03-fire/%E9%98%B2%E7%81%AB%20L10%20%E5%8F%8D%E5%BA%94%E5%88%86%E7%BA%A7%E6%AD%A3%E5%BC%8F%E7%89%88%20A1-A1FL%20EN13501-1%20Fire%20L10%20Reaction%20Classification%20FINAL%20A1%20EN13501-1%20%23557889.pdf" download>防火 L10 反应分级正式版 A1-A1FL EN13501-1 Fire L10 Reaction Classification FINAL A1 EN13501-1 #557889.pdf</a><span>468 KB</span></li><li><a href="files/03-fire/%E9%98%B2%E7%81%AB%20N10%20%E5%8F%8D%E5%BA%94%E5%88%86%E7%BA%A7%E6%AD%A3%E5%BC%8F%E7%89%88%20A1-A1FL%20EN13501-1%20Fire%20N10%20Reaction%20Classification%20FINAL%20A1%20EN13501-1%20%23557890.pdf" download>防火 N10 反应分级正式版 A1-A1FL EN13501-1 Fire N10 Reaction Classification FINAL A1 EN13501-1 #557890.pdf</a><span>468 KB</span></li></ul></div><div class="dl"><h4>UKCA / CE</h4><p>SGS 抗压·吸水 · 上海建科透湿 · N10 DoP · 内部矩阵</p><ul><li><a href="files/04-ukca-ce/N10%20%E6%80%A7%E8%83%BD%E5%A3%B0%E6%98%8E%20DoP%20%E5%AE%8C%E6%95%B4%20N10%20Declaration%20of%20Performance%20%28full%29.pdf" download>N10 性能声明 DoP 完整 N10 Declaration of Performance (full).pdf</a><span>143 KB</span></li><li><a href="files/04-ukca-ce/SGS%20L10%20%E5%90%B8%E6%B0%B4%E7%8E%87%20EN772-21%20SGS%20L10%20Water%20Absorption%20EN772-21.pdf" download>SGS L10 吸水率 EN772-21 SGS L10 Water Absorption EN772-21.pdf</a><span>525 KB</span></li><li><a href="files/04-ukca-ce/SGS%20L10%20%E6%8A%97%E5%8E%8B%E5%BC%BA%E5%BA%A6%20EN772-1%20SGS%20L10%20Compressive%20Strength%20EN772-1.pdf" download>SGS L10 抗压强度 EN772-1 SGS L10 Compressive Strength EN772-1.pdf</a><span>522 KB</span></li><li><a href="files/04-ukca-ce/UKCA%20%E5%86%85%E9%83%A8%E6%80%A7%E8%83%BD%E6%B1%87%E6%80%BB%E8%A1%A8%20L0-L10-N10-N20-N30%20UKCA%20Internal%20Performance%20Matrix.xlsx" download>UKCA 内部性能汇总表 L0-L10-N10-N20-N30 UKCA Internal Performance Matrix.xlsx</a><span>18 KB</span></li><li><a href="files/04-ukca-ce/%E4%B8%8A%E6%B5%B7%E5%BB%BA%E7%A7%91%20L10%20%E6%B0%B4%E8%92%B8%E6%B0%94%E9%80%8F%E6%B9%BF%20ISO12572%20SRIBS%20L10%20Water%20Vapour%20Permeability%20ISO12572%20JR228.pdf" download>上海建科 L10 水蒸气透湿 ISO12572 SRIBS L10 Water Vapour Permeability ISO12572 JR228.pdf</a><span>515 KB</span></li></ul></div>
 </section>
 
 </div>
 <footer><div class="wrap">
-earth4Earth 吸碳砖认证检测数据包 · 编制 2026-07-19 · 依据档案原始文件逐格核验（国标 HBQI / Lucideon / Warringtonfire / SGS / 上海建科 / EPD Hub）<br>
-本页为工程数据核验文件，非营销材料；标注 tbc / ‡ 的数值在正式第三方报告出具前不应对外声明。
-Engineering data-verification pack, not marketing material; values marked tbc / ‡ must not be declared externally before third-party reports are issued.
+earth4Earth 吸碳砖技术规格数据核验 · 编制 2026-07-19 · 数据优先级：BBA/Lucideon/Warringtonfire/SGS/建科 → 国标（HBQI）→ 内部实验室<br>
+本页为工程数据文件，非营销材料；标注 ‡ / tbc 的数值在第三方报告出具前不应对外声明。源码：<a href="https://github.com/ZHANG-Xiang-INSA/e4e-brick-specs">github.com/ZHANG-Xiang-INSA/e4e-brick-specs</a>
 </div></footer>
-</body>
-</html>
+</body></html>

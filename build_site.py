@@ -1,372 +1,363 @@
 # -*- coding: utf-8 -*-
-"""Build index.html for e4E brick technical specifications data pack."""
-import os, sys, urllib.parse
+"""e4E brick technical specifications — verified data pack (GitHub Pages / Vercel).
+Design: light surface, ink text, source-graded badges, EN771-1/772-1-based calculation
+with strip-plot charts. All numbers computed here from Lucideon individual values."""
+import os, sys, math, urllib.parse, statistics as st
 sys.stdout.reconfigure(encoding='utf-8')
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
-# ---------- downloads manifest ----------
-GROUP_TITLES = {
- "00-summary":   ("汇总报告 Summary Reports", "整理报告(Word) + 汇总表(Excel, 14表)"),
- "01-china-gb":  ("国标检测 China GB (HBQI)", "湖北省产品质量监督检验研究院 · L10 新/旧配方检验报告"),
- "02-lucideon":  ("Lucideon 检测 (UKAS 0013)", "L10/N10 单砖 EN772 系列 + 砌体 EN1052 系列"),
- "03-fire":      ("Warringtonfire 防火 Fire", "EN 13501-1 反应分级正式版 A1/A1FL (2026-06-18)"),
- "04-ukca-ce":   ("UKCA / CE", "SGS 测试 · 上海建科透湿 · 符合性证书 · DoP · 内部性能矩阵"),
- "05-epd":       ("EPD 环境产品声明", "N10 HUB-3866 · N30 HUB-4829 · 核验意见"),
-}
-def build_downloads():
-    out = []
-    fdir = os.path.join(ROOT, "files")
-    total = 0; count = 0
-    for g in sorted(os.listdir(fdir)):
-        gd = os.path.join(fdir, g)
-        if not os.path.isdir(gd): continue
-        title, sub = GROUP_TITLES.get(g, (g, ""))
-        items = []
+# ================= calculation (single source of truth) =================
+DELTA = 0.845          # EN772-1 Table A.1: h65/w100=0.85, h65/w150=0.75 -> interp @102.5
+COND  = 1.0            # EN772-1 Annex A: 7.3.2 (incl. b: 105C >=24h + cool) -> x1.0
+K95   = 2.911          # one-sided tolerance factor, n=10, p=95%, conf=95%
+K164  = 1.64
+RAW = {"L10":[45.6,48.2,53.4,50.3,50.6,52.7,52.2,52.3,53.0,50.3],
+       "N10":[39.6,40.7,39.1,42.5,36.1,39.7,40.5,32.1,43.1,37.2]}
+REPORT = {"L10":"Lucideon N26730-2 (2026-05-08)","N10":"Lucideon N253627-2 (2025-09-30)"}
+REC = {"L10":35.0,"N10":22.5}   # recommended Category I declared value
+CALC={}
+for p,v in RAW.items():
+    n=len(v); m=st.mean(v); s=st.stdev(v); ss=sum((x-m)**2 for x in v)
+    norm=[x*COND*DELTA for x in v]
+    fbm=m*COND*DELTA; sn=s*COND*DELTA
+    CALC[p]=dict(n=n,total=sum(v),mean=m,s=s,ss=ss,cov=s/m*100,vmin=min(v),
+        norm=norm,fbmean=fbm,snorm=sn,
+        cat1=fbm-K95*sn, k164=fbm-K164*sn, rec=REC[p])
+for p,c in CALC.items():
+    print(f"{p}: mean={c['mean']:.2f} s={c['s']:.3f} fb={c['fbmean']:.2f} CatI={c['cat1']:.2f} k164={c['k164']:.2f}")
+
+# ================= SVG strip plot =================
+def chart(p):
+    c=CALC[p]; W,H,L,R2 = 760,168,46,14
+    x0,x1 = 0,50
+    def X(v): return L+(v-x0)/(x1-x0)*(W-L-R2)
+    dots="".join(
+        f'<circle cx="{X(nv):.1f}" cy="112" r="6" fill="#2a78d6" fill-opacity=".8" stroke="#fcfcfb" stroke-width="1.5">'
+        f'<title>试件{i+1}: 实测 {rv:.1f} → 归一化 {nv:.1f} N/mm²</title></circle>'
+        for i,(rv,nv) in enumerate(zip(RAW[p],c["norm"])))
+    ticks="".join(f'<line x1="{X(t)}" y1="128" x2="{X(t)}" y2="133" stroke="#c9c9c4"/>'
+                  f'<text x="{X(t)}" y="148" text-anchor="middle" class="ax">{t}</text>' for t in range(0,51,10))
+    def vline(v,y,label,color,dash=""):
+        return (f'<line x1="{X(v):.1f}" y1="{y}" x2="{X(v):.1f}" y2="128" stroke="{color}" stroke-width="2" {dash}/>'
+                f'<text x="{X(v):.1f}" y="{y-5}" text-anchor="middle" class="rl" fill="{color}">{label}</text>')
+    lines =(vline(10,58,"现行声明 10","#6b6b66",'stroke-dasharray="2 4"')
+           +vline(c["cat1"],40,f"Category I 上限 {c['cat1']:.1f}","#8a5a00",'stroke-dasharray="6 4"')
+           +vline(c["rec"],76,f"建议声明 {c['rec']:g}","#166b3f")
+           +vline(c["fbmean"],58,f"归一化均值 {c['fbmean']:.1f}","#444"))
+    return f'''<svg viewBox="0 0 {W} {H}" role="img" aria-label="{p} 归一化抗压强度分布">
+<line x1="{L}" y1="128" x2="{W-R2}" y2="128" stroke="#c9c9c4"/>{ticks}
+<text x="{W-R2}" y="164" text-anchor="end" class="ax">归一化抗压强度 f<tspan baseline-shift="sub" font-size="9">b</tspan> (N/mm²)</text>
+{lines}{dots}</svg>'''
+
+# ================= downloads =================
+GROUPS={"01-china-gb":("国标 China GB · HBQI","吸水率13%印证 · 自然态强度24.9对照"),
+ "02-lucideon":("Lucideon · UKAS 0013","单砖抗压/尺寸/吸水/可溶盐 · 砌体抗压 fk"),
+ "03-fire":("Warringtonfire","EN 13501-1 反应分级正式版 A1/A1FL"),
+ "04-ukca-ce":("UKCA / CE","SGS 抗压·吸水 · 上海建科透湿 · N10 DoP · 内部矩阵")}
+def downloads():
+    out=[];cnt=0;tot=0
+    for g in sorted(os.listdir(os.path.join(ROOT,"files"))):
+        gd=os.path.join(ROOT,"files",g)
+        if not os.path.isdir(gd):continue
+        t,sub=GROUPS.get(g,(g,""))
+        items=""
         for fn in sorted(os.listdir(gd)):
-            p = os.path.join(gd, fn); sz = os.path.getsize(p); total += sz; count += 1
-            url = "files/" + urllib.parse.quote(g) + "/" + urllib.parse.quote(fn)
-            szs = f"{sz/1048576:.1f} MB" if sz > 1048576 else f"{sz//1024} KB"
-            items.append(f'<li><a href="{url}" download>{fn}</a> <span class="sz">{szs}</span></li>')
-        out.append(f'<div class="dlgroup"><h4>{title}</h4><p class="dlsub">{sub}</p><ul>{"".join(items)}</ul></div>')
-    return "\n".join(out), count, total/1048576
+            sz=os.path.getsize(os.path.join(gd,fn)); tot+=sz; cnt+=1
+            url="files/"+urllib.parse.quote(g)+"/"+urllib.parse.quote(fn)
+            szs=f"{sz/1048576:.1f} MB" if sz>1048576 else f"{sz//1024} KB"
+            items+=f'<li><a href="{url}" download>{fn}</a><span>{szs}</span></li>'
+        out.append(f'<div class="dl"><h4>{t}</h4><p>{sub}</p><ul>{items}</ul></div>')
+    return "".join(out),cnt,tot/1048576
+DL,DLN,DLMB=downloads()
 
-DL_HTML, DL_COUNT, DL_MB = build_downloads()
+# ================= badges & cells =================
+TP ='<span class="b tp" title="第三方检测 third-party tested">†第三方</span>'
+LABB='<span class="b lab" title="内部实验室，待第三方复核 internal lab">‡内部</span>'
+DOPB='<span class="b dop" title="DoP 声明值 declared">§声明</span>'
+TBC='<span class="b tbc">tbc</span>'
+def was(v): return f'<span class="was">原 {v}</span>'
 
-CSS = """
-:root{--g:#1e5c2f;--g2:#2e7d32;--dgrey:#4a4a4a;--lgrey:#9e9e9e;--row:#8f8f8f;--rowt:#fff;
---hl:#fff3cd;--err:#ffd7d7;--warn:#ffe8c2;--ok:#d9f2df;--ink:#1c1c1c}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif;color:var(--ink);background:#f6f7f5;line-height:1.55}
-.wrap{max-width:1280px;margin:0 auto;padding:24px 20px 80px}
-header.site{background:linear-gradient(120deg,#12381d,#1e5c2f 55%,#2e7d32);color:#fff;padding:38px 20px 30px}
-header.site .wrap{padding:0 20px}
-h1{font-size:1.7rem;letter-spacing:.2px}
-.sub{opacity:.92;margin-top:8px;font-size:.95rem}
-.badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
-.badge{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:3px 12px;font-size:.8rem}
-nav.toc{position:sticky;top:0;background:#fff;border-bottom:2px solid var(--g);z-index:5;box-shadow:0 1px 6px rgba(0,0,0,.08)}
-nav.toc .wrap{padding:10px 20px;display:flex;gap:18px;flex-wrap:wrap}
-nav.toc a{color:var(--g);text-decoration:none;font-weight:600;font-size:.9rem}
-nav.toc a:hover{text-decoration:underline}
-section{margin-top:42px}
-h2{color:var(--g);font-size:1.3rem;border-left:5px solid var(--g);padding-left:12px;margin-bottom:6px}
-h3{color:#2c2c2c;font-size:1.05rem;margin:22px 0 8px}
-.note{font-size:.88rem;color:#555;margin:6px 0 14px}
-.tablewrap{overflow-x:auto;background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.07);padding:2px}
-table.spec{border-collapse:collapse;width:100%;min-width:980px;font-size:.85rem}
-table.spec th,table.spec td{border:1.5px solid #fff;padding:8px 10px;vertical-align:top}
-table.spec thead th{background:#000;color:#fff;text-align:left;font-size:.86rem}
-table.spec td.char{background:var(--g);color:#fff;font-weight:600;width:210px}
-table.spec td{background:var(--row);color:var(--rowt)}
-table.spec tr.alt td:not(.char){background:#7a7a7a}
-table.spec td.err{background:#a33;color:#fff}
-table.spec td.warn{background:#b57614;color:#fff}
-table.spec td.fix{background:#2e6b3d;color:#fff}
-table.spec td .old{display:block;text-decoration:line-through;opacity:.75;font-size:.78rem}
-table.spec td .why{display:block;font-size:.74rem;opacity:.92;margin-top:2px}
-.spanhead td{background:var(--g)!important;color:#fff;text-align:center;font-weight:700}
-sup{font-weight:700}
-table.calc{border-collapse:collapse;width:100%;font-size:.88rem;background:#fff}
-table.calc th,table.calc td{border:1px solid #cfd6cf;padding:7px 10px;text-align:center}
-table.calc th{background:var(--g);color:#fff}
-table.calc td.l{text-align:left}
-table.calc tr.hl td{background:var(--hl);font-weight:700}
-.card{background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.07);padding:18px 22px;margin-top:12px}
-.formula{font-family:Consolas,monospace;background:#eef3ee;border-left:4px solid var(--g);padding:10px 14px;margin:10px 0;font-size:.9rem;overflow-x:auto}
-.caveat{background:#fff8e6;border-left:4px solid #d99a06;padding:12px 16px;margin:12px 0;font-size:.88rem}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;margin:10px 0}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.chip{display:inline-block;width:16px;height:16px;border-radius:3px}
-.dlgroup{background:#fff;border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.07);padding:16px 22px;margin-top:14px}
-.dlgroup h4{color:var(--g);font-size:1rem}
-.dlsub{font-size:.8rem;color:#666;margin:2px 0 8px}
-.dlgroup ul{list-style:none}
-.dlgroup li{padding:5px 0;border-bottom:1px dashed #e2e6e2;font-size:.86rem;display:flex;justify-content:space-between;gap:14px}
-.dlgroup li:last-child{border-bottom:none}
-.dlgroup a{color:#155a99;text-decoration:none;word-break:break-all}
-.dlgroup a:hover{text-decoration:underline}
-.sz{color:#999;white-space:nowrap;font-size:.78rem}
-footer{margin-top:60px;padding:26px 20px;background:#12381d;color:#cfe3d3;font-size:.82rem}
-footer a{color:#fff}
-.fnotes{font-size:.8rem;color:#555;margin-top:10px;line-height:1.7}
-.tag{display:inline-block;border-radius:4px;padding:1px 7px;font-size:.72rem;font-weight:700;margin-left:6px;vertical-align:1px}
-.tag.tp{background:#d9f2df;color:#14522a}.tag.lab{background:#ffe8c2;color:#7a4c00}.tag.dop{background:#dbe7ff;color:#173e7a}.tag.tbc{background:#eee;color:#777}
-@media print{nav.toc{display:none}}
+L=CALC["L10"];N=CALC["N10"]
+
+def spec_rows():
+    rows=[
+     ("颜色 Colour","深灰","灰","灰","浅灰","灰白"),
+     ("尺寸 Dimensions (mm)","215×102.5×65","215×102.5×65 "+TP,"215×102.5×65 "+TP,"215×102.5×65","215×102.5×65"),
+     ("公差 / 范围类别 Tolerance / Range","T2 / R2",f"T2 / R2 {TP}",f"T2 / R2 {TP}","T2 / R2","T2 / R2 "+was("R1")),
+     ("实测平均抗压强度 Mean compressive (N/mm²)",
+      f"7 {LABB}<i>自然态</i>",f"50.9 {TP}<i>Lucideon·105℃</i>",f"39.1 {TP}<i>Lucideon·105℃</i>",
+      f"35 {LABB}<i>自然态</i>",f"46 {LABB}<i>自然态</i>"),
+     ("归一化抗压强度 f<sub>b</sub> (N/mm²) <em>新增</em>",
+      TBC,f"{L['fbmean']:.1f} {TP}<i>×1.0×0.845</i>",f"{N['fbmean']:.1f} {TP}<i>×1.0×0.845</i>",TBC,TBC),
+     ("Category I 声明上限（95%置信）Cat I ceiling",
+      TBC,f"{L['cat1']:.1f} {TP}",f"{N['cat1']:.1f} {TP}",TBC,TBC),
+     ("建议声明抗压强度 Recommended declared (N/mm²)",
+      f"3.5 {DOPB}",f"<b>35</b><i>现行声明10可上调</i>",f"<b>22.5</b><i>现行DoP=10可上调</i>",
+      TBC+was("7.5")+"<i>无据，待送检</i>",TBC+was("7.5")+"<i>无据，待送检</i>"),
+     ("砌体抗压特征值 Masonry f<sub>k</sub> EN1052-1 (N/mm²)",
+      TBC,f"6.28 {TP}",f"7.06 {TP}",TBC,TBC),
+     ("吸水率 Water absorption (24 h)",
+      "N/A",f"<b>13%</b> {TP}"+was("14%")+"<i>SGS＋国标一致</i>",f"11.8% {LABB}"+was("10%"),
+      TBC+was("14%"),f"10.2% {LABB}"+was("17%")),
+     ("初始吸水率 IRWA (kg/(m²·min))",TBC,f"0.5 {TP}",f"1.1 {TP}",TBC,TBC),
+     ("水蒸气透湿 WVP (mg/(m·h·Pa))",
+      TBC,f"<b>0.068</b> {TP}"+was("0.035")+"<i>建科 1.9×10⁻¹¹</i>",f"0.043 {DOPB}"+was("0.048"),TBC,TBC),
+     ("导热系数 Thermal conductivity λ (W/(m·K))",
+      f"0.8 {LABB}",TBC+was("0.9"),f"0.9 {DOPB}",TBC+was("0.8"),TBC+was("0.8")),
+     ("比热容 Specific heat (J/(g·K))",
+      f"0.8411 {LABB}",TBC+was("0.78"),f"0.8392 {DOPB}",TBC+was("0.78"),TBC+was("0.86")),
+     ("可溶盐类别 Active soluble salts",
+      f"S2 {LABB}",f"S2 {TP}",f"S2 {TP}",TBC+was("S2"),TBC+was("S2")),
+     ("防火反应 Reaction to fire EN13501-1",
+      "A1<i>CWFT待确认</i>",f"A1/A1<sub>FL</sub> {TP}<i>557889 正式</i>",f"A1/A1<sub>FL</sub> {TP}<i>557890 正式</i>",
+      "A1<i>CWFT待确认</i>","A1<i>CWFT待确认</i>"),
+     ("耐火极限 Fire resistance EN13501-2",
+      TBC,TBC+was("264 min")+"<i>档案无报告</i>",TBC+was("264 min"),TBC,TBC),
+     ("危险物质 Dangerous substances","符合 2003/33/EC","符合 2003/33/EC","符合 2003/33/EC","符合 2003/33/EC","符合 2003/33/EC"),
+    ]
+    return "".join("<tr><th>"+r[0]+"</th>"+"".join(f"<td>{c}</td>" for c in r[1:])+"</tr>" for r in rows)
+
+def orig_rows():
+    E=' class="e"';Wn=' class="w"'
+    rows=[
+     ("Colour*","Dark grey","Grey","Grey","Light grey","White-grey","","","","",""),
+    ]
+    html=""
+    data=[
+     ("Colour*",["Dark grey","Grey","Grey","Light grey","White-grey"],[None]*5),
+     ("Dimensions (mm)",["215×102.5×65"]*5,[None]*5),
+     ("Tolerance category",["T2","T2†","T2†","T2","T2"],[None]*5),
+     ("Range category",["R2","R2†","R2†","R2","R1"],[None,None,None,None,"应为 R2"]),
+     ("Mean compressive strength",["7","50.9†","39.1†","35","46"],[None,None,None,"自然态·养护口径混用","自然态·养护口径混用"]),
+     ("Declared compressive strength",["3.5","10","10","7.5","7.5"],[None,None,None,"无依据且低于N10","无依据且低于N10"]),
+     ("Masonry compressive strength",["tbc","6.28†","7.06†","tbc","tbc"],[None]*5),
+     ("Water absorption",["N/A","14%","10%","14%","17%"],[None,"实测13%","内部11.8%","未测","内部10.2%，方向亦反"]),
+     ("Initial rate of water absorption",["tbc","0.5†","1.1†","tbc","tbc"],[None]*5),
+     ("Water vapour permeability",["tbc","0.035†","0.048†","tbc","tbc"],[None,"实测0.068","DoP为0.043",None,None]),
+     ("Equivalent thermal conductivity",["0.8","0.9","0.9","0.8","0.8"],[None,"矩阵Pending",None,"Pending","Pending"]),
+     ("Specific heat capacity",["0.84","0.78","0.84","0.78","0.86"],[None,"Pending",None,"Pending","Pending"]),
+     ("Active soluble salts content",["S2","S2†","S2†","S2","S2"],[None,None,None,"未测","未测"]),
+     ("Reaction to fire",["A1","A1†","A1†","A1","A1"],[None,None,None,"未测(CWFT待确认)","未测(CWFT待确认)"]),
+     ("Fire resistance",["tbc","264 minutes§†","264 minutes§†","tbc","tbc"],[None,"档案无EN13501-2报告","档案无EN13501-2报告",None,None]),
+    ]
+    hard={"R1","7.5","14%","10%","17%","0.035†","264 minutes§†"}
+    for name,vals,notes in data:
+        tds=""
+        for v,note in zip(vals,notes):
+            cls="e" if v in hard else ("w" if note else "")
+            nt=f'<i>{note}</i>' if note else ""
+            tds+=f'<td class="{cls}">{v}{nt}</td>'
+        html+=f"<tr><th>{name}</th>{tds}</tr>"
+    return html
+
+PRODHEAD="<tr><th></th><td class='ph'>L0<i>无粘结剂</i></td><td class='ph'>L10<i>10%常规石灰</i></td><td class='ph'>N10<i>10% e4E石灰</i></td><td class='ph'>N20<i>20% e4E石灰</i></td><td class='ph'>N30<i>30% e4E石灰</i></td></tr>"
+
+CSS="""
+:root{--surface:#fcfcfb;--card:#fff;--ink:#1d1d1b;--muted:#6b6b66;--line:#e7e7e2;
+--accent:#166b3f;--accent-soft:#ebf4ee;--data:#2a78d6;--err:#b3261e;--err-soft:#fbeceb;
+--amber:#8a5a00;--amber-soft:#fdf3dc;--blue:#1a4f9c;--blue-soft:#e9effb;--tbcc:#85857f;--tbc-soft:#f0f0ec}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:var(--surface);color:var(--ink);line-height:1.6;font-size:15px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.hero{padding:64px 0 40px;border-bottom:1px solid var(--line)}
+.kicker{color:var(--accent);font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:1.9rem;line-height:1.25;margin:10px 0 6px;letter-spacing:-.01em}
+.lede{color:var(--muted);max-width:56em}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:28px}
+.kcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.kcard .n{font-size:2rem;font-weight:750;letter-spacing:-.02em}
+.kcard .n small{font-size:.95rem;font-weight:500;color:var(--muted)}
+.kcard .t{font-size:.85rem;color:var(--muted);margin-top:2px}
+.kcard.g .n{color:var(--accent)}
+nav{position:sticky;top:0;background:rgba(252,252,251,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:10}
+nav .wrap{display:flex;gap:22px;padding:12px 24px;overflow-x:auto;white-space:nowrap}
+nav a{color:var(--ink);text-decoration:none;font-size:.86rem;font-weight:600}
+nav a:hover{color:var(--accent)}
+section{padding:52px 0 8px}
+h2{font-size:1.35rem;letter-spacing:-.01em;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:20px;max-width:60em}
+h3{font-size:1.02rem;margin:26px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-top:14px}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:.86rem}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:none}
+thead .ph,tr:first-child .ph{font-weight:700;background:var(--accent-soft);border-bottom:2px solid var(--accent)}
+.ph i{display:block;font-style:normal;font-weight:500;color:var(--muted);font-size:.76rem}
+tbody th{font-weight:650;width:220px;color:var(--ink);background:#fafaf7}
+td i,th em{display:block;font-style:normal;color:var(--muted);font-size:.76rem;margin-top:1px}
+td.e{background:var(--err-soft)}
+td.w{background:var(--amber-soft)}
+.b{display:inline-block;font-size:.68rem;font-weight:700;border-radius:99px;padding:0 8px;margin-left:6px;vertical-align:1px}
+.b.tp{background:var(--accent-soft);color:var(--accent)}
+.b.lab{background:var(--amber-soft);color:var(--amber)}
+.b.dop{background:var(--blue-soft);color:var(--blue)}
+.b.tbc{background:var(--tbc-soft);color:var(--tbcc);margin-left:0}
+.was{display:inline-block;font-size:.72rem;color:var(--err);background:var(--err-soft);border-radius:6px;padding:0 6px;margin-left:6px;text-decoration:line-through}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.8rem;color:var(--muted);margin:12px 2px}
+.step{display:flex;gap:16px;margin-top:14px}
+.step .no{flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.9rem;margin-top:20px}
+.step .card{flex:1;margin-top:0}
+.f{font-family:Consolas,"JetBrains Mono",monospace;background:#f4f6f3;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;font-size:.84rem;margin:10px 0;overflow-x:auto}
+.quote{border-left:3px solid var(--line);padding:6px 14px;color:var(--muted);font-size:.85rem;margin:8px 0}
+.caveat{background:var(--amber-soft);border:1px solid #ecd9a8;border-radius:10px;padding:12px 16px;font-size:.86rem;margin-top:14px}
+.callout{background:var(--accent-soft);border:1px solid #cfe3d6;border-radius:10px;padding:12px 16px;font-size:.86rem;margin-top:14px}
+svg{width:100%;height:auto;display:block;margin-top:8px}
+.ax{font-size:11px;fill:var(--muted)}
+.rl{font-size:11.5px;font-weight:650}
+.chartcap{font-size:.8rem;color:var(--muted);margin-top:4px}
+.dl{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-top:12px}
+.dl h4{font-size:.95rem}.dl>p{font-size:.78rem;color:var(--muted);margin-bottom:6px}
+.dl ul{list-style:none;padding:0}
+.dl li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.84rem}
+.dl li:last-child{border:none}
+.dl a{color:var(--blue);text-decoration:none;word-break:break-all}
+.dl a:hover{text-decoration:underline}
+.dl li span{color:#9a9a94;font-size:.76rem;white-space:nowrap}
+footer{margin-top:64px;border-top:1px solid var(--line);padding:26px 0 48px;color:var(--muted);font-size:.8rem}
+footer a{color:var(--accent)}
+.en{color:var(--muted);font-size:.86em}
+@media (max-width:640px){.hero{padding:40px 0 28px}h1{font-size:1.5rem}}
 """
-
-# marker helpers
-TP='<sup title="第三方检测 Third-party tested">†</sup>'
-LAB='<sup title="内部实验室 Internal lab, to be third-party verified">‡</sup>'
-DOP='<sup title="DoP 声明值 Declared (DoP)">§</sup>'
-CW='<sup title="CWFT — 有机物含量≤1%可免测分级为A1，需确认 Classified Without Further Testing possible if organic content ≤1% (to confirm)">#</sup>'
-
-def corrected_table():
-    R=[]
-    def row(char,cells,alt=False,cls=None):
-        tds=f'<td class="char">{char}</td>'
-        for c in cells:
-            k=""; v=c
-            if isinstance(c,tuple): v,k=c
-            tds+=f'<td class="{k}">{v}</td>'
-        R.append(f'<tr class="{"alt" if alt else ""}">{tds}</tr>')
-    row("颜色 Colour *",["深灰 Dark grey","灰 Grey","灰 Grey","浅灰 Light grey","灰白 White-grey"])
-    row("尺寸 Dimensions (mm)",["215 × 102.5 × 65",f"215 × 102.5 × 65{TP}",f"215 × 102.5 × 65{TP}","215 × 102.5 × 65","215 × 102.5 × 65"],alt=True)
-    R.append('<tr class="spanhead"><td colspan="6">尺寸公差 Dimensional Tolerances</td></tr>')
-    row("公差类别 Tolerance category",["T2",f"T2{TP}",f"T2{TP}","T2","T2"])
-    row("范围类别 Range category",["R2",f"R2{TP}",f"R2{TP}","R2",("R2<span class='why'>原表R1，内部矩阵为R2 (was R1; internal matrix: R2)</span>","fix")],alt=True)
-    row("实测平均抗压强度 Mean compressive strength (N/mm²)",
-        [f"7{LAB}<span class='why'>自然态 natural-dry</span>",
-         f"50.9{TP}<span class='why'>105℃烘干 oven-dry (Lucideon N26730)</span>",
-         f"39.1{TP}<span class='why'>105℃烘干 oven-dry (Lucideon N253627)</span>",
-         f"35{LAB}<span class='why'>自然态 natural-dry</span>",
-         f"46{LAB}<span class='why'>自然态 natural-dry</span>"])
-    row("特征归一化强度 f<sub>b,k</sub> Characteristic normalised strength (N/mm²) ▸新增",
-        [("tbc","warn"),
-         (f"≈29.6–37.0{TP}<span class='why'>见计算报告 see calculation report</span>","fix"),
-         (f"≈20.0–25.0{TP}<span class='why'>见计算报告 see calculation report</span>","fix"),
-         ("tbc","warn"),("tbc","warn")],alt=True)
-    row("声明抗压强度 Declared compressive strength (N/mm²)",
-        [f"3.5{DOP}",
-         (f"10{DOP}<span class='why'>现行DoP；数据可支撑上调至≤25（待Lucideon归一化确认）current DoP; data supports ≤25 pending lab confirmation</span>","fix"),
-         (f"10{DOP}<span class='why'>现行DoP；数据可支撑至≤20（建议15）data supports ≤20 (suggest 15)</span>","fix"),
-         ("tbc<span class='old'>7.5</span><span class='why'>无依据且低于N10声明，删除；待正式送检 unsupported & illogical, remove until formally tested</span>","err"),
-         ("tbc<span class='old'>7.5</span><span class='why'>同左 same as N20</span>","err")])
-    row("砌体抗压特征值 Masonry compressive strength f<sub>k</sub> (BS EN 1052-1)",
-        ["tbc",f"6.28{TP}",f"7.06{TP}","tbc","tbc"],alt=True)
-    row("吸水率 Water absorption (24h)",
-        ["N/A",
-         (f"13%{TP}<span class='old'>14%</span><span class='why'>SGS CM05 & 国标 JC202506061 均为13% both give 13%</span>","err"),
-         (f"11.8%{LAB}<span class='old'>10%</span><span class='why'>内部LAB 0.1183；无第三方报告 internal lab; no third-party report yet</span>","err"),
-         ("tbc<span class='old'>14%</span><span class='why'>未检测 not tested</span>","err"),
-         (f"10.2%{LAB}<span class='old'>17%</span><span class='why'>内部LAB 0.1024；17%无出处且方向反 internal lab 10.24%; 17% unsupported & wrong direction</span>","err")])
-    row("初始吸水率 Initial rate of water absorption (kg/(m²·min))",
-        ["tbc",f"0.5{TP}",f"1.1{TP}","tbc","tbc"],alt=True)
-    row("水蒸气透湿系数 Water vapour permeability (mg/(m·h·Pa))",
-        ["tbc",
-         (f"0.068{TP}<span class='old'>0.035</span><span class='why'>=1.9×10⁻¹¹ kg/(s·m·Pa)，上海建科 JR228-260044 (SRIBS)</span>","err"),
-         (f"0.043{DOP}<span class='old'>0.048</span><span class='why'>=1.19×10⁻¹¹ kg/(s·m·Pa)，N10 DoP</span>","fix"),
-         ("tbc","warn"),("tbc","warn")])
-    row("等效导热系数 Equivalent thermal conductivity W/(m·K) ‡‡",
-        [f"0.8{LAB}",
-         ("tbc<span class='old'>0.9</span><span class='why'>内部矩阵为Pending，待测 pending in internal matrix</span>","warn"),
-         f"0.9{DOP}",
-         ("tbc<span class='old'>0.8</span>","warn"),
-         ("tbc<span class='old'>0.8</span>","warn")],alt=True)
-    row("比热容 Specific heat capacity J/(g·K)",
-        [f"0.8411{LAB}",
-         ("tbc<span class='old'>0.78</span><span class='why'>Pending，待测 pending</span>","warn"),
-         f"0.8392{DOP}",
-         ("tbc<span class='old'>0.78</span>","warn"),
-         ("tbc<span class='old'>0.86</span>","warn")])
-    row("可溶盐类别 Active soluble salts content",
-        [f"S2{LAB}",f"S2{TP}",f"S2{TP}",
-         ("tbc<span class='old'>S2</span><span class='why'>未检测 not tested</span>","warn"),
-         ("tbc<span class='old'>S2</span><span class='why'>未检测 not tested</span>","warn")],alt=True)
-    row("防火反应分级 Reaction to fire (EN 13501-1)",
-        [f"A1 {CW}",
-         f"A1 / A1<sub>FL</sub>{TP}<span class='why'>Warringtonfire 557889 正式版 final, 2026-06-18</span>",
-         f"A1 / A1<sub>FL</sub>{TP}<span class='why'>Warringtonfire 557890 正式版 final, 2026-06-18</span>",
-         f"A1 {CW}",f"A1 {CW}"])
-    row("耐火极限 Fire resistance (EN 13501-2)",
-        [("tbc","warn"),
-         ("tbc<span class='old'>264 minutes</span><span class='why'>档案中无EN13501-2报告，264分钟无出处 no EN 13501-2 report on file; 264 min unverifiable</span>","err"),
-         ("tbc<span class='old'>264 minutes</span><span class='why'>同左 same</span>","err"),
-         ("tbc","warn"),("tbc","warn")],alt=True)
-    row("危险物质 Dangerous substances",["符合2003/33/EC，环保可回收 Eco-friendly & fully recyclable, compliant with 2003/33/EC"]*5)
-    return "\n".join(R)
-
-def original_table():
-    """Reconstruction of the original marketing table with errors marked."""
-    R=[]
-    def row(char,cells,alt=False):
-        tds=f'<td class="char">{char}</td>'
-        for c in cells:
-            k=""; v=c
-            if isinstance(c,tuple): v,k=c
-            tds+=f'<td class="{k}">{v}</td>'
-        R.append(f'<tr class="{"alt" if alt else ""}">{tds}</tr>')
-    row("Colour*",["Dark grey","Grey","Grey","Light grey","White-grey"])
-    row("Dimensions (mm)",["215 x 102.5 x 65","215 x 102.5 x 65†","215 x 102.5 x 65†","215 x 102.5 x 65","215 x 102.5 x 65"],alt=True)
-    R.append('<tr class="spanhead"><td colspan="6">Dimensional Tolerances</td></tr>')
-    row("Tolerance category",["T2","T2†","T2†","T2","T2"])
-    row("Range category",["R2","R2†","R2†","R2",("R1<span class='why'>应为R2 should be R2</span>","err")],alt=True)
-    row("Mean compressive strength (N/mm²)",["7","50.9†","39.1†",("35<span class='why'>自然态,与烘干值不可同列比较 natural-dry, not comparable</span>","warn"),("46<span class='why'>同左</span>","warn")])
-    row("Declared compressive strength (N/mm²)",["3.5","10","10",("7.5<span class='why'>无依据;低于N10不合逻辑 unsupported; illogical vs N10</span>","err"),("7.5<span class='why'>同左</span>","err")],alt=True)
-    row("Masonry compressive strength (BS EN 1052-1:1999)",["tbc","6.28†","7.06†","tbc","tbc"])
-    row("Water absorption",["N/A",("14%<span class='why'>实测13% measured 13%</span>","err"),("10%<span class='why'>内部LAB 11.8%</span>","err"),("14%<span class='why'>未测 not tested</span>","err"),("17%<span class='why'>内部LAB 10.2%;方向也反 lab says 10.2%</span>","err")],alt=True)
-    row("Initial rate of water absorption (kg/(m²·min))",["tbc","0.5†","1.1†","tbc","tbc"])
-    row("Water vapour permeability (mg/m·h·Pa)",["tbc",("0.035†<span class='why'>实测0.068 (1.9e-11) measured 0.068</span>","err"),("0.048†<span class='why'>DoP为0.043 (1.19e-11)</span>","warn"),"tbc","tbc"],alt=True)
-    row("Equivalent thermal conductivity W/(m·K)‡",["0.8",("0.9<span class='why'>Pending 待测</span>","warn"),"0.9",("0.8<span class='why'>Pending</span>","warn"),("0.8<span class='why'>Pending</span>","warn")])
-    row("Specific heat capacity",["0.84 J/(g·K)",("0.78 J/(g·K)<span class='why'>Pending 待测</span>","warn"),"0.84 J/(g·K)",("0.78 J/(g·K)<span class='why'>Pending</span>","warn"),("0.86 J/(g·K)<span class='why'>Pending</span>","warn")],alt=True)
-    row("Active soluble salts content",["S2","S2†","S2†",("S2<span class='why'>未测 not tested</span>","warn"),("S2<span class='why'>未测 not tested</span>","warn")])
-    row("Reaction to fire",["A1","A1†","A1†",("A1<span class='why'>未测,可走CWFT需确认 untested; CWFT route to confirm</span>","warn"),("A1<span class='why'>同左</span>","warn")],alt=True)
-    row("Fire resistance",["tbc",("264 minutes§†<span class='why'>档案无EN13501-2报告 no report on file</span>","err"),("264 minutes§†<span class='why'>同左</span>","err"),"tbc","tbc"])
-    row("Dangerous substances",["Eco-friendly and fully recyclable, compliant with 2003/33/EC"]*5)
-    return "\n".join(R)
-
-HEAD_COLS='<thead><tr><th>Characteristics 特性</th><th>L0 – No binder</th><th>L10 – Conventional binder</th><th>N10 – 10% e4E binder</th><th>N20 – 20% e4E binder</th><th>N30 – 30% e4E binder</th></tr></thead>'
 
 HTML=f"""<!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>earth4Earth 吸碳砖技术规格 · 数据核验与计算报告 | Technical Specifications — Data Verification &amp; Calculation Report</title>
+<title>earth4Earth 吸碳砖技术规格 · 数据核验与声明值计算</title>
 <style>{CSS}</style>
 </head>
 <body>
-<header class="site"><div class="wrap">
-<h1>earth4Earth 吸碳砖技术规格 — 数据核验与更正 / Technical Specifications — Verified &amp; Corrected</h1>
-<div class="sub">Manufactured to BS EN 771-1 · 依据全部原始检测报告逐格核验 every cell verified against source test reports · 2026-07</div>
-<div class="badges">
-<span class="badge">国标 China GB (HBQI)</span><span class="badge">Lucideon UKAS 0013</span>
-<span class="badge">Warringtonfire A1/A1FL</span><span class="badge">SGS · 上海建科 SRIBS</span>
-<span class="badge">EPD Hub HUB-3866 / HUB-4829</span><span class="badge">{DL_COUNT} 份源文件可下载 source files downloadable</span>
-</div></div></header>
 
-<nav class="toc"><div class="wrap">
-<a href="#corrected">① 更正版规格表 Corrected</a>
-<a href="#original">② 原版对照 Original (annotated)</a>
-<a href="#calc">③ 特征强度计算报告 Strength Calculation</a>
-<a href="#wa">④ 吸水率来源 Water Absorption</a>
-<a href="#downloads">⑤ 源文件下载 Downloads</a>
+<div class="hero"><div class="wrap">
+<div class="kicker">earth4Earth · Technical Specifications Data Pack</div>
+<h1>吸碳砖技术规格：数据核验与抗压强度声明值计算<br><span class="en" style="font-size:.6em;font-weight:500">Carbon-capture bricks — verified specifications &amp; declared compressive strength per BS EN 771-1 / 772-1</span></h1>
+<p class="lede">对市场版技术规格表逐格核验；抗压强度声明值按 BS EN 771-1 <b>Category I</b>（失效概率 ≤5%，置信度 95%）由 Lucideon 实测数据推导。数据优先级：<b>BBA / Lucideon / Warringtonfire / SGS / 建科</b> → 国标 → 内部实验室。</p>
+<div class="cards">
+<div class="kcard g"><div class="n">35 <small>N/mm²</small></div><div class="t">L10 建议声明值（Category I 上限 {L['cat1']:.1f}）</div></div>
+<div class="kcard g"><div class="n">22.5 <small>N/mm²</small></div><div class="t">N10 建议声明值（Category I 上限 {N['cat1']:.1f}）</div></div>
+<div class="kcard"><div class="n">×1.0 · δ 0.845</div><div class="t">EN 772-1 归一化：养护 7.3.2(b) 系数 1.0，形状系数 Table A.1 插值</div></div>
+<div class="kcard"><div class="n">{DLN} 份</div><div class="t">全部引用源文件可下载（{DLMB:.0f} MB）</div></div>
+</div>
+</div></div>
+
+<nav><div class="wrap">
+<a href="#spec">① 更正版规格表</a><a href="#calc">② 声明值计算</a><a href="#orig">③ 原版对照</a><a href="#wa">④ 吸水率来源</a><a href="#dl">⑤ 源文件下载</a>
 </div></nav>
 
 <div class="wrap">
 
-<section id="corrected">
-<h2>① 更正版技术规格表 Corrected Technical Specifications</h2>
-<p class="note">每格标注数据来源等级；更正处保留原值（划线）与更正理由。
-Each cell carries a source grade; corrected cells keep the original value (struck through) and the reason.</p>
+<section id="spec">
+<h2>① 更正版技术规格表 <span class="en">Corrected specifications</span></h2>
+<p class="sub">每格标注数据等级；被更正处保留原值（红色划线）。Manufactured to BS EN 771-1，尺寸 215×102.5×65 mm。</p>
 <div class="legend">
-<span><span class="tag tp">†</span> 第三方检测 Third-party tested</span>
-<span><span class="tag lab">‡</span> 内部实验室 Internal lab（待第三方复核 to be verified）</span>
-<span><span class="tag dop">§</span> DoP 声明值 Declared</span>
-<span><span class="tag tbc">#</span> CWFT 可免测A1（须确认有机物≤1%）</span>
-<span><span class="chip" style="background:#a33"></span> 更正（原值有误）corrected error</span>
-<span><span class="chip" style="background:#b57614"></span> 无依据→tbc unsupported → tbc</span>
-<span><span class="chip" style="background:#2e6b3d"></span> 补充/建议 addition / recommendation</span>
+<span><span class="b tp">†第三方</span> Lucideon / Warringtonfire / SGS / 建科 / 国标</span>
+<span><span class="b lab">‡内部</span> 内部实验室，待第三方复核</span>
+<span><span class="b dop">§声明</span> DoP 声明值</span>
+<span><span class="b tbc">tbc</span> 待定，暂不声明</span>
+<span><span class="was">原 值</span> 原表数值（有误或无据）</span>
 </div>
-<div class="tablewrap"><table class="spec">{HEAD_COLS}<tbody>
-{corrected_table()}
-</tbody></table></div>
-<div class="fnotes">
-* 天然土色随土源变化，可加颜料定制。Natural colour varies with soil source; pigment customisation possible.<br>
-† 第三方：国标=湖北省产品质量监督检验研究院；Lucideon（UKAS 0013）；SGS；上海建科；Warringtonfire（UKAS 0249）。<br>
-‡ 内部实验室值，出自 UKCA-2026 内部性能矩阵，尚无第三方报告。Internal lab values from the UKCA-2026 matrix; no third-party report yet.<br>
-‡‡ 导热/比热：内部矩阵中 L10/N20/N30 为 Pending；仅 L0（内部）与 N10（DoP）有依据。<br>
-▸ 平均强度行养护基准不同（烘干 vs 自然态），不可横向直接比较：同一 L10 烘干50.9 / SGS烘干35.8 / 国标自然态24.9。
-Mean-strength row mixes conditioning regimes (oven vs natural dry) — not directly comparable across columns.<br>
-▸ 声明强度按 BS EN 771-1 应采用归一化特征值（5%分位数）为上限——见③计算报告。Declared value must not exceed the characteristic normalised strength — see section ③.
-</div>
-</section>
-
-<section id="original">
-<h2>② 原版表对照（重建，含标注）Original Table (reconstructed, annotated)</h2>
-<p class="note">按 2026-06 市场版技术规格表逐格重建；<b style="color:#a33">红=与实测矛盾</b>，<b style="color:#b57614">橙=无依据/待确认</b>。
-Faithful reconstruction of the June-2026 marketing table; red = contradicts measurements, orange = unsupported / to confirm.
-表头 “UKCA/CE/EPD certified” 亦不精确：N10 证书已签发+EPD已发布；L10 证书为草稿、无EPD；N30 仅EPD；N20 均无。</p>
-<div class="tablewrap"><table class="spec">{HEAD_COLS}<tbody>
-{original_table()}
-</tbody></table></div>
+<div class="tw"><table><tbody>{PRODHEAD}{spec_rows()}</tbody></table></div>
+<p class="sub" style="margin-top:10px">养护口径：Lucideon/SGS 为 105 ℃ 干燥（EN 772-1 7.3.2(b)）；L0/N20/N30 为自然态内部值——同一 L10 自然态（国标）均值 24.9 N/mm²，两口径不可横向比较。防火 CWFT：无机材料有机物含量 ≤1% 可免测按 A1 分级（BBA 规范 S172697 附录 B），L0/N20/N30 采用前需确认成分。</p>
 </section>
 
 <section id="calc">
-<h2>③ 特征抗压强度计算报告 Characteristic Compressive Strength — Calculation Report</h2>
+<h2>② 抗压强度声明值计算 <span class="en">Declared strength — full derivation</span></h2>
+<p class="sub">目标：按 BS EN 771-1 确定 L10 / N10 可对外声明的抗压强度（Category I，95% 置信）。全过程可复算，所有输入来自 Lucideon 报告单块值。</p>
 
-<div class="card">
-<h3>0. 依据与数据来源 Basis &amp; data source</h3>
-<p style="font-size:.9rem">
-按 <b>BS EN 771-1:2011+A1:2015</b>，单元抗压强度以<b>归一化抗压强度 f<sub>b</sub></b> 声明，可声明平均值或<b>特征值（5% 分位数）</b>；本报告按客户要求采用<b>带 95% 置信度的 5% 分位数</b>（即 95% 置信下 95% 的砖不低于该值）。
-归一化按 <b>BS EN 772-1:2011+A1:2015</b>：先换算至气干基准（浸水态 ×1.2；烘干态换算系数见第4步说明），再乘<b>形状系数 δ</b>（Table A.1，允许插值）。<br>
-数据：Lucideon 单砖抗压报告（105℃ 烘干、表面磨平、大面受压、各 10 块）——
-<b>L10</b>: N26730-2（2026-05-08）；<b>N10</b>: N253627-2（2025-09-30）。UKAS 0013。
-</p>
-<h3>1. 实测单块值 Individual measured values (N/mm², oven-dry)</h3>
-<div class="tablewrap"><table class="calc">
-<tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
-<tr><td class="l"><b>L10</b></td><td>45.6</td><td>48.2</td><td>53.4</td><td>50.3</td><td>50.6</td><td>52.7</td><td>52.2</td><td>52.3</td><td>53.0</td><td>50.3</td></tr>
-<tr><td class="l"><b>N10</b></td><td>39.6</td><td>40.7</td><td>39.1</td><td>42.5</td><td>36.1</td><td>39.7</td><td>40.5</td><td>32.1</td><td>43.1</td><td>37.2</td></tr>
+<div class="step"><div class="no">1</div><div class="card">
+<h3 style="margin-top:0">标准依据 <span class="en">What the standards require</span></h3>
+<p class="quote">BS EN 771-1:2011+A1:2015 §5.3.4（U 类砖）：制造商应声明<b>平均抗压强度</b>，并在相关时声明<b>归一化抗压强度 f<sub>b</sub></b>；同时声明 <b>Category I 或 II</b>。抽样复验要求：批均值 ≥ 声明值，且单块 ≥ 声明值的 80%。</p>
+<p class="quote">Category I（§3 定义 + §8.3.1）：声明抗压强度的<b>未达标概率不超过 5%，对应 95% 置信水平</b>——即"95% 声明值"的出处。Category II 无此统计要求。</p>
+<p class="quote">BS EN 772-1:2011+A1:2015 附录 A：归一化 = 先换算至<b>气干等效</b>（7.3.2 气干含 (b)&nbsp;105 ℃≥24h+冷却≥4h → <b>×1.0</b>；7.3.3 烘至恒重 → ×0.8；7.3.5 浸水 → ×1.2），再乘<b>形状系数 δ</b>（Table A.1，允许线性插值）。</p>
+<p style="font-size:.86rem">本案：SGS 报告明示按 <b>7.3.2(b)</b> 养护（105 ℃ 24h → 23 ℃ 4h）；Lucideon 记录 “Dryer at 105 °C”（未注明恒重），与 7.3.2(b) 一致 → 取 <b>×1.0</b>（若 Lucideon 确认为烘至恒重则改用 ×0.8，结果按 0.8 等比例缩减——待其书面确认）。</p>
+</div></div>
+
+<div class="step"><div class="no">2</div><div class="card">
+<h3 style="margin-top:0">实测数据 <span class="en">Input data — 10 units each, bed face, surface ground</span></h3>
+<div class="tw" style="border:none"><table style="min-width:680px">
+<tr><th></th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><th>报告</th></tr>
+<tr><th>L10 (N/mm²)</th><td>45.6</td><td>48.2</td><td>53.4</td><td>50.3</td><td>50.6</td><td>52.7</td><td>52.2</td><td>52.3</td><td>53.0</td><td>50.3</td><th style="font-weight:500">{REPORT['L10']}</th></tr>
+<tr><th>N10 (N/mm²)</th><td>39.6</td><td>40.7</td><td>39.1</td><td>42.5</td><td>36.1</td><td>39.7</td><td>40.5</td><td>32.1</td><td>43.1</td><td>37.2</td><th style="font-weight:500">{REPORT['N10']}</th></tr>
 </table></div>
+</div></div>
 
-<h3>2. 统计量 Statistics</h3>
-<div class="formula">mean x̄ = Σxᵢ/n　　s = √[Σ(xᵢ−x̄)²/(n−1)]　　CoV = s/x̄</div>
-<div class="tablewrap"><table class="calc">
-<tr><th></th><th>n</th><th>均值 mean</th><th>标准差 s</th><th>CoV</th><th>最小值 min</th><th>与报告一致性 check vs report</th></tr>
-<tr><td class="l"><b>L10</b></td><td>10</td><td>50.86</td><td>2.443</td><td>4.8%</td><td>45.6</td><td class="l">✓ 报告印 50.9 / CoV 4.8%</td></tr>
-<tr><td class="l"><b>N10</b></td><td>10</td><td>39.06</td><td>3.237</td><td>8.3%</td><td>32.1</td><td class="l">✓ 报告印 39.1 / CoV 8.3%</td></tr>
+<div class="step"><div class="no">3</div><div class="card">
+<h3 style="margin-top:0">统计量 <span class="en">Statistics（逐步演算）</span></h3>
+<div class="f">x̄ = Σxᵢ / n        s = √[ Σ(xᵢ − x̄)² / (n−1) ]        CoV = s / x̄</div>
+<div class="f">L10：Σ = {L['total']:.1f} → x̄ = {L['total']:.1f}/10 = <b>{L['mean']:.2f}</b>；Σ(xᵢ−x̄)² = {L['ss']:.2f} → s = √({L['ss']:.2f}/9) = <b>{L['s']:.3f}</b>；CoV = {L['cov']:.1f}%
+N10：Σ = {N['total']:.1f} → x̄ = {N['total']:.1f}/10 = <b>{N['mean']:.2f}</b>；Σ(xᵢ−x̄)² = {N['ss']:.2f} → s = √({N['ss']:.2f}/9) = <b>{N['s']:.3f}</b>；CoV = {N['cov']:.1f}%</div>
+<p style="font-size:.85rem" class="en">与 Lucideon 报告印刷值一致（L10: 50.9 / 4.8%；N10: 39.1 / 8.3%）——校核通过。</p>
+</div></div>
+
+<div class="step"><div class="no">4</div><div class="card">
+<h3 style="margin-top:0">归一化 <span class="en">Normalisation (EN 772-1 Annex A)</span></h3>
+<div class="f">条件系数 = 1.0（7.3.2(b)）
+δ：Table A.1 → 高65/宽100 = 0.85，高65/宽150 = 0.75（允许插值）
+δ(宽102.5) = 0.85 + (102.5−100)/(150−100) × (0.75−0.85) = 0.85 − 0.005 = <b>0.845</b>
+f_b = 1.0 × 0.845 × f      （线性变换：均值与标准差同乘 0.845）</div>
+<div class="f">L10：f_b均值 = {L['mean']:.2f} × 0.845 = <b>{L['fbmean']:.2f}</b>；s_b = {L['s']:.3f} × 0.845 = {L['snorm']:.3f}
+N10：f_b均值 = {N['mean']:.2f} × 0.845 = <b>{N['fbmean']:.2f}</b>；s_b = {N['s']:.3f} × 0.845 = {N['snorm']:.3f}</div>
+</div></div>
+
+<div class="step"><div class="no">5</div><div class="card">
+<h3 style="margin-top:0">Category I 声明上限（95% 置信）<span class="en">One-sided tolerance limit</span></h3>
+<p style="font-size:.88rem">要求 P(单块 &lt; 声明值) ≤ 5% 且置信度 95%。样本统计下采用正态<b>单侧容忍限</b>：声明值 ≤ x̄<sub>b</sub> − k·s<sub>b</sub>，其中 k(n=10, p=95%, γ=95%) = <b>2.911</b>（ISO 16269-6 容忍限系数表）。参考口径 k=1.645（理想大样本 5% 分位点）一并列出。</p>
+<div class="f">L10：{L['fbmean']:.2f} − 2.911×{L['snorm']:.3f} = <b>{L['cat1']:.2f} N/mm²</b>　（k=1.64 参考：{L['k164']:.2f}）
+N10：{N['fbmean']:.2f} − 2.911×{N['snorm']:.3f} = <b>{N['cat1']:.2f} N/mm²</b>　（k=1.64 参考：{N['k164']:.2f}）</div>
+<h3>分布与关键线 <span class="en">Normalised distribution — L10</span></h3>
+{chart('L10')}
+<p class="chartcap">蓝点 = 10 块单砖归一化强度（悬停查看原始值）；线：归一化均值 / Category I 上限 / 建议声明 / 现行声明 10。</p>
+<h3 style="margin-top:22px">分布与关键线 <span class="en">— N10</span></h3>
+{chart('N10')}
+</div></div>
+
+<div class="step"><div class="no">6</div><div class="card">
+<h3 style="margin-top:0">EN 771-1 §5.3.4 符合性核验 <span class="en">Conformity check at recommended values</span></h3>
+<div class="tw" style="border:none"><table style="min-width:640px">
+<tr><th>检查项</th><th>要求</th><th>L10 @ 声明 35</th><th>N10 @ 声明 22.5</th></tr>
+<tr><th>批均值 ≥ 声明值</th><td>x̄_b ≥ D</td><td>{L['fbmean']:.1f} ≥ 35 ✓</td><td>{N['fbmean']:.1f} ≥ 22.5 ✓</td></tr>
+<tr><th>单块 ≥ 80% 声明值</th><td>min ≥ 0.8·D</td><td>min {min(L['norm']):.1f} ≥ 28.0 ✓</td><td>min {min(N['norm']):.1f} ≥ 18.0 ✓</td></tr>
+<tr><th>Category I（95% 置信）</th><td>D ≤ x̄_b − 2.911·s_b</td><td>35 ≤ {L['cat1']:.1f} ✓</td><td>22.5 ≤ {N['cat1']:.1f} ✓</td></tr>
 </table></div>
+<div class="callout"><b>结论：</b>L10 可声明 <b>35 N/mm²（Category I）</b>（上限 {L['cat1']:.1f}）；N10 可声明 <b>22.5 N/mm²（Category I）</b>（上限 {N['cat1']:.1f}）。现行 DoP 声明 10 合规但过度保守；上调需修订 DoP 并经 Lucideon 确认归一化口径。N20 / N30 仅有内部单点均值（35 / 46，自然态），无分布数据与第三方报告，<b>正式送检前不得声明</b>（原表 7.5 无据且低于 N10，应删除）。</div>
+<div class="caveat"><b>保留事项：</b>① Lucideon 两份单砖报告均注明 “The sample was deviating… result(s) may be invalid”（取样为厂家自行完成）——正式声明前需 Lucideon/BBA 确认其影响；② 养护若确认为“烘至恒重”（7.3.3），全部结果乘 0.8（L10 上限 → {L['cat1']*0.8:.1f}，N10 → {N['cat1']*0.8:.1f}）；③ n=10 为最小可用样本量，建议扩样后复核；④ δ 插值以 Table A.1 为准，最终以 Lucideon 官方归一化值为声明依据。</div>
+</div></div>
+</section>
 
-<h3>3. 特征值（5% 分位数）Characteristic value (5% fractile)</h3>
-<div class="formula">f_k = x̄ − k·s　　k = 1.64（大样本5%分位）　或　k = 2.911（n=10，5%分位数 @ 95%置信，单侧容忍限系数）</div>
-<p class="note">k=2.911 取自正态单侧容忍限表（n=10, p=95%, γ=95%）——严格满足“95% 置信”的要求；k=1.64 为常用简化。两者均列出。</p>
-
-<h3>4. 归一化 Normalisation (EN 772-1)</h3>
-<div class="formula">f_b = 条件换算系数 × δ × f（试件 102.5 mm 宽 × 65 mm 高，大面受压）
-δ = 0.845（Table A.1 插值：100mm宽/65mm高=0.85，140mm宽=0.77 → 102.5mm≈0.845，CBA Data Sheet 18）
-条件换算：气干为基准；浸水 ×1.2（标准明示）；105℃烘干→气干 采用 ×0.8（英国惯例，须经 Lucideon 按 Annex A 确认）</div>
-<div class="caveat"><b>为何要保守：</b>同一 L10 新配方，国标<b>自然态</b>抗压均值仅 24.9 N/mm²，约为烘干值 50.9 的一半——烘干态显著偏高，气干换算系数必然明显小于 1，×0.8 属合理偏保守的工程取值，最终以 Lucideon 官方归一化为准。</div>
-
-<h3>5. 计算结果 Results (N/mm²)</h3>
-<div class="tablewrap"><table class="calc">
-<tr><th rowspan="2"></th><th rowspan="2">f_k (k=1.64)</th><th rowspan="2">f_k (k=2.911, 95%置信)</th><th colspan="2">归一化 f_b,k = f_k × δ(0.845) × 条件系数</th></tr>
-<tr><th>×1.0（不含烘干换算 upper bound）</th><th>×0.8（保守 conservative）</th></tr>
-<tr><td class="l"><b>L10</b></td><td>46.85</td><td>43.75</td><td>39.6 / 37.0</td><td>31.7 / <b>29.6</b></td></tr>
-<tr class="hl"><td class="l"><b>N10</b></td><td>33.75</td><td>29.64</td><td>28.5 / 25.0</td><td>22.8 / <b>20.0</b></td></tr>
-</table></div>
-<p class="note">每格两值分别对应 k=1.64 / k=2.911。加粗为“95%置信 + 保守条件换算”的最保守链条。</p>
-
-<h3>6. 结论与建议 Conclusion &amp; recommendation</h3>
-<div class="card" style="background:#f2f8f3">
-<ul style="margin-left:20px;font-size:.92rem;line-height:1.9">
-<li><b>L10</b>：最保守特征归一化强度 <b>f<sub>b,k</sub> ≈ 29.6 N/mm²</b> → 声明值可定 <b>25</b>（留margin）；上限不应超过 29。</li>
-<li><b>N10</b>：最保守 <b>f<sub>b,k</sub> ≈ 20.0 N/mm²</b> → 声明值可定 <b>15</b>；现行已签 DoP 声明 10 合规且非常保守，如上调需重签 DoP。</li>
-<li><b>N20 / N30</b>：仅有内部单点均值（35 / 46，自然态），<b>无分布数据、非第三方</b>——按 EN 771-1 无法计算特征值，<b>正式送检前不得声明任何数值</b>（原表 7.5 应删除）。</li>
-<li>请 Lucideon 出具<b>官方归一化特征强度</b>（确认烘干→气干换算系数与 δ），以其为最终声明依据。</li>
-</ul>
-</div>
-<div class="caveat">
-<b>限制条件 Caveats：</b>
-① Lucideon 两份单砖报告均印有 “The sample was deviating and as a result, the test result(s) may be invalid.”（取样由厂家自行完成、方法未提供）——声明前应与 Lucideon/BBA 确认该保留意见的影响；
-② δ=0.845 为 CBA 表插值，正式声明以 EN 772-1 Table A.1 为准；
-③ 烘干→气干 ×0.8 为工程取值，须按 EN 772-1 Annex A 正式确认；
-④ n=10 样本量下建议保留 k=2.911 的严格口径。
-</div>
-</div>
+<section id="orig">
+<h2>③ 原版表对照 <span class="en">Original table (June 2026), annotated</span></h2>
+<p class="sub">按原市场版逐格重建：<span style="background:var(--err-soft);padding:0 6px;border-radius:4px">红=与实测/记录矛盾</span>　<span style="background:var(--amber-soft);padding:0 6px;border-radius:4px">黄=无依据或口径问题</span>。表头 “UKCA/CE/EPD certified” 亦不准确：N10 证书已签发+EPD 已发布；L10 证书草稿、无 EPD；N30 仅 EPD；N20 均无。</p>
+<div class="tw"><table><tbody>{PRODHEAD}{orig_rows()}</tbody></table></div>
 </section>
 
 <section id="wa">
-<h2>④ 吸水率数据来源 Water Absorption — Source &amp; Grade</h2>
-<div class="card">
-<div class="tablewrap"><table class="calc">
-<tr><th>产品 Product</th><th>数值 Value</th><th>数据等级 Grade</th><th>来源文件 Source</th><th>备注 Remarks</th></tr>
-<tr class="hl"><td><b>L10</b></td><td><b>13%</b></td><td>† 第三方 Third-party</td><td class="l">SGS SHIN2511002964CM05（个体12–13%，均值13%）＋ 国标 JC202506061（13%，限值≤15%）</td><td class="l">两家第三方一致；另 SGS 防潮层5h沸煮法 12.1%</td></tr>
-<tr><td><b>N10</b></td><td>11.8%</td><td>‡ 内部实验室 Internal lab</td><td class="l">UKCA-2026 内部性能矩阵（LAB 列 0.1183）</td><td class="l">尚无第三方24h吸水报告——建议纳入下轮送检</td></tr>
-<tr><td><b>N20</b></td><td>tbc</td><td>— 未检测 Not tested</td><td class="l">—</td><td class="l">矩阵为 Pending</td></tr>
-<tr><td><b>N30</b></td><td>10.2%</td><td>‡ 内部实验室 Internal lab</td><td class="l">UKCA-2026 内部性能矩阵（LAB 列 0.1024）</td><td class="l">原表 17% 无出处且方向相反（掺量↑吸水↓）</td></tr>
-<tr><td><b>L0</b></td><td>N/A</td><td>—</td><td class="l">—</td><td class="l">无粘结剂参照制品</td></tr>
+<h2>④ 吸水率数据来源 <span class="en">Water absorption — source &amp; grade</span></h2>
+<div class="tw"><table style="min-width:720px">
+<tr><th>产品</th><th>数值</th><th>等级</th><th>来源</th><th>说明</th></tr>
+<tr><th>L10</th><td><b>13%</b></td><td>{TP}</td><td>SGS SHIN2511002964CM05（个体 12–13%）；国标 JC202506061（13%，限值 ≤15%）</td><td>两家第三方一致；SGS 防潮层 5h 沸煮法另测 12.1%</td></tr>
+<tr><th>N10</th><td>11.8%</td><td>{LABB}</td><td>UKCA-2026 内部矩阵（LAB 0.1183）</td><td>无第三方 24h 吸水报告，建议纳入下轮送检</td></tr>
+<tr><th>N20</th><td>{TBC}</td><td>—</td><td>—</td><td>未检测</td></tr>
+<tr><th>N30</th><td>10.2%</td><td>{LABB}</td><td>UKCA-2026 内部矩阵（LAB 0.1024）</td><td>原表 17% 无出处且方向相反（掺量↑吸水↓）</td></tr>
+<tr><th>L0</th><td>N/A</td><td>—</td><td>—</td><td>无粘结剂参照制品</td></tr>
 </table></div>
-<p class="note">注意区分两项指标：<b>吸水率 Water absorption</b>（24h 浸水，%，EN 772-21/JC/T 422）与<b>初始吸水率 IRWA</b>（kg/(m²·min)，EN 772-11）——L10 0.5† / N10 1.1†。
-Two distinct metrics: 24-h water absorption (%) vs initial rate of water absorption (kg/(m²·min)).</p>
-</div>
+<p class="sub" style="margin-top:10px">区分两个指标：吸水率（24h 浸水，%，EN 772-21 / JC/T 422）与初始吸水率 IRWA（kg/(m²·min)，EN 772-11：L10 0.5†，N10 1.1†）。</p>
 </section>
 
-<section id="downloads">
-<h2>⑤ 源文件下载 Source Documents ({DL_COUNT} files, {DL_MB:.0f} MB)</h2>
-<p class="note">本页所有结论均可追溯至以下原始文件（双语命名）。All conclusions traceable to these source documents (bilingual filenames).</p>
-{DL_HTML}
+<section id="dl">
+<h2>⑤ 源文件下载 <span class="en">Source documents（{DLN} files · {DLMB:.0f} MB）</span></h2>
+<p class="sub">仅收录本页直接引用的证据文件（双语命名）。BS EN 771-1 / 772-1 标准文本受 BSI 版权保护不提供下载，本页仅引用条款号（§5.3.4、§8.3.1、7.3.2/7.3.3、附录 A Table A.1）。</p>
+{DL}
 </section>
 
 </div>
 <footer><div class="wrap">
-earth4Earth 吸碳砖认证检测数据包 · 编制 2026-07-19 · 依据档案原始文件逐格核验（国标 HBQI / Lucideon / Warringtonfire / SGS / 上海建科 / EPD Hub）<br>
-本页为工程数据核验文件，非营销材料；标注 tbc / ‡ 的数值在正式第三方报告出具前不应对外声明。
-Engineering data-verification pack, not marketing material; values marked tbc / ‡ must not be declared externally before third-party reports are issued.
+earth4Earth 吸碳砖技术规格数据核验 · 编制 2026-07-19 · 数据优先级：BBA/Lucideon/Warringtonfire/SGS/建科 → 国标（HBQI）→ 内部实验室<br>
+本页为工程数据文件，非营销材料；标注 ‡ / tbc 的数值在第三方报告出具前不应对外声明。源码：<a href="https://github.com/ZHANG-Xiang-INSA/e4e-brick-specs">github.com/ZHANG-Xiang-INSA/e4e-brick-specs</a>
 </div></footer>
-</body>
-</html>"""
+</body></html>"""
 
-out=os.path.join(ROOT,"index.html")
-open(out,"w",encoding="utf-8").write(HTML)
-print("written",out,len(HTML),"chars;",DL_COUNT,"files",f"{DL_MB:.1f}MB")
+open(os.path.join(ROOT,"index.html"),"w",encoding="utf-8").write(HTML)
+print("written index.html",len(HTML),"chars;",DLN,"files",f"{DLMB:.1f}MB")
