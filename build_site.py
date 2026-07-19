@@ -102,9 +102,9 @@ def vrows():
       f"11.8% {LAB}"+was("10%"),TBC+was("14%"),f"10.2% {LAB}"+was("17%")]),
     (T("Initial rate of water absorption (kg/(m²·min))","初始吸水率 (kg/(m²·min))"),
      [TBC,f"0.5 {TP}",f"1.1 {TP}",TBC,TBC]),
-    (T("Water vapour permeability","水蒸气透湿"),
-     [TBC,TBC+note("Lucideon report awaited","待 Lucideon 报告")+was("0.035"),
-      TBC+note("Lucideon report awaited","待 Lucideon 报告")+was("0.048"),TBC,TBC]),
+    (T("Water vapour permeability δ<sub>p</sub>, EN ISO 12572 (mg/(m·h·Pa))","水蒸气透湿系数 δ<sub>p</sub>，EN ISO 12572 (mg/(m·h·Pa))"),
+     [TBC,f"0.035 {TP}"+note("Lucideon N26458; µ 22.75, s_d 1.50 m","Lucideon N26458；µ 22.75，s_d 1.50 m"),
+      f"0.048 {TP}"+note("Lucideon N26458; µ 15.0, s_d 1.00 m","Lucideon N26458；µ 15.0，s_d 1.00 m"),TBC,TBC]),
     (T("Thermal conductivity λ (W/(m·K))","导热系数 λ (W/(m·K))"),
      [f"0.8 {LAB}",TBC+note("awaiting BBA","等待 BBA")+was("0.9"),TBC+note("awaiting BBA","等待 BBA")+was("0.9"),f"0.8 {LAB}",f"0.8 {LAB}"]),
     (T("Specific heat capacity (J/(g·K))","比热容 (J/(g·K))"),
@@ -112,11 +112,11 @@ def vrows():
     (T("Active soluble salts","可溶盐类别"),
      [f"S2 {LAB}",f"S2 {TP}",f"S2 {TP}",TBC+was("S2"),TBC+was("S2")]),
     (T("Reaction to fire, EN 13501-1","防火反应分级，EN 13501-1"),
-     ["A1"+note("CWFT, to confirm","CWFT，待确认"),f"A1 / A1<sub>FL</sub> {TP}"+note("report 557889, final","557889 正式版"),
-      f"A1 / A1<sub>FL</sub> {TP}"+note("report 557890, final","557890 正式版"),"A1"+note("CWFT, to confirm","CWFT，待确认"),"A1"+note("CWFT, to confirm","CWFT，待确认")]),
-    (T("Fire resistance, EN 13501-2","耐火极限，EN 13501-2"),
-     [TBC,f"264 min {TP}"+note("Warringtonfire; test stopped at 264 min; report to be archived","Warringtonfire；264 分钟后中止；报告待归档"),
-      f"264 min {TP}"+note("Warringtonfire; report to be archived","Warringtonfire；报告待归档"),TBC,TBC]),
+     ["A1"+note("CWFT, to confirm","CWFT，待确认"),f"A1 / A1<sub>FL</sub> {TP}"+note("#557889; EN ISO 1182 + 1716 on file","#557889；EN ISO 1182 + 1716 已归档"),
+      f"A1 / A1<sub>FL</sub> {TP}"+note("#557890; EN ISO 1182 + 1716 on file","#557890；EN ISO 1182 + 1716 已归档"),"A1"+note("CWFT, to confirm","CWFT，待确认"),"A1"+note("CWFT, to confirm","CWFT，待确认")]),
+    (T("Fire resistance, EN 1365-1 (loadbearing wall)","耐火极限，EN 1365-1（承重墙）"),
+     [TBC,f"REI 264 min {TP}"+note("Warringtonfire; R, E and I all reached 264 min, test then stopped","Warringtonfire；R、E、I 均达 264 分钟后中止"),
+      f"REI 264 min {TP}"+note("Warringtonfire; R, E and I all reached 264 min, test then stopped","Warringtonfire；R、E、I 均达 264 分钟后中止"),TBC,TBC]),
     (T("Dangerous substances","危险物质"),["2003/33/EC"]*5),
     ]
     return "".join(f'<tr><th class="rh">{h}</th>'+"".join(f"<td>{c}</td>" for c in cs)+"</tr>" for h,cs in R)
@@ -136,7 +136,7 @@ def orows():
      [None,("e",T("measured 13%","实测 13%")),("e",T("internal 11.8%","内部 11.8%")),("e",T("not tested","未测")),("e",T("internal 10.2%","内部 10.2%"))]),
     ("Initial rate of water absorption",["tbc","0.5†","1.1†","tbc","tbc"],[None]*5),
     ("Water vapour permeability",["tbc","0.035†","0.048†","tbc","tbc"],
-     [None,("w",T("Lucideon report awaited","待 Lucideon 报告")),("w",T("Lucideon report awaited","待 Lucideon 报告")),None,None]),
+     [None,None,None,None,None]),
     ("Equivalent thermal conductivity",["0.8","0.9","0.9","0.8","0.8"],
      [None,("w",T("awaiting BBA","等待 BBA")),("w",T("awaiting BBA","等待 BBA")),None,None]),
     ("Specific heat capacity",["0.84","0.78","0.84","0.78","0.86"],[None]*5),
@@ -144,8 +144,8 @@ def orows():
      [None,None,None,("w",T("not tested","未测")),("w",T("not tested","未测"))]),
     ("Reaction to fire",["A1","A1†","A1†","A1","A1"],
      [None,None,None,("w",T("untested; CWFT route","未测，可走 CWFT")),("w",T("untested; CWFT route","未测，可走 CWFT"))]),
-    ("Fire resistance",["tbc","264 minutes§†","264 minutes§†","tbc","tbc"],
-     [None,("w",T("Warringtonfire; report to be archived","Warringtonfire；报告待归档")),("w",T("report to be archived","报告待归档")),None,None]),
+    ("Fire resistance",["tbc","REI 264 min§†","REI 264 min§†","tbc","tbc"],
+     [None,None,None,None,None]),
     ("Dangerous substances",["2003/33/EC"]*5,[None]*5),
     ]
     out=""
@@ -368,7 +368,6 @@ HTML=("""<!DOCTYPE html>
 <body>
 
 <div class="bar"><div class="wrap">
-<div class="wm">earth<em>4</em>Earth <span style="font-weight:500;color:var(--mut)">· data pack</span></div>
 <nav>
 <a href="#spec" class="on">"""+T("Specifications","规格表")+"""</a>
 <a href="#calc">"""+T("Derivation","声明值推导")+"""</a>
@@ -408,8 +407,8 @@ HTML=("""<!DOCTYPE html>
 </div>
 <div class="tw" id="tblVerified"><table><tbody>"""+PRODHEAD+vrows()+"""</tbody></table></div>
 <div class="tw" id="tblOriginal"><table><tbody>"""+PRODHEAD+orows()+"""</tbody></table></div>
-<p class="sub" style="margin-top:10px">"""+T("Conditioning differs across the mean strength row: Lucideon and SGS dried at 105 °C, the L0, N20 and N30 figures are natural-dry internal values. The same L10 batch measured 24.9 N/mm² natural-dry under China GB, so the two regimes cannot be compared side by side. Specific heat: third-party tested in Wuhan, 2025; the report is being archived. Fire resistance 264 min: Warringtonfire stopped the test at 264 minutes; the report is being archived. CWFT: inorganic products with organic content at or below 1% may claim A1 without testing, composition to be confirmed for L0, N20 and N30.",
-"平均强度一行的养护口径不同：Lucideon 与 SGS 为 105 ℃ 干燥，L0、N20、N30 为自然态内部值。同一 L10 批次国标自然态实测 24.9 N/mm²，两种口径不能并排比较。比热容为 2025 年武汉第三方测试，报告归档中。耐火极限 264 分钟：Warringtonfire 测试至 264 分钟中止，报告归档中。CWFT：有机物含量不超过 1% 的无机制品可免测按 A1 分级，L0、N20、N30 需先确认成分。")+"""</p>
+<p class="sub" style="margin-top:10px">"""+T("Conditioning differs across the mean strength row: Lucideon and SGS dried at 105 °C, the L0, N20 and N30 figures are natural-dry internal values. The same L10 batch measured 24.9 N/mm² natural-dry under China GB, so the two regimes cannot be compared side by side. Specific heat: third-party tested in Wuhan, 2025; the report is being archived. Fire resistance REI 264 min: Warringtonfire tested the loadbearing wall to EN 1365-1; resistance, integrity and insulation all held to 264 minutes, when the test was stopped. Water vapour permeability now comes from the Lucideon EN ISO 12572 cup-method reports (N26458). Both the fire-resistance and vapour reports are in the downloads below. CWFT: inorganic products with organic content at or below 1% may claim A1 without testing, composition to be confirmed for L0, N20 and N30.",
+"平均强度一行的养护口径不同：Lucideon 与 SGS 为 105 ℃ 干燥，L0、N20、N30 为自然态内部值。同一 L10 批次国标自然态实测 24.9 N/mm²，两种口径不能并排比较。比热容为 2025 年武汉第三方测试，报告归档中。耐火极限 REI 264 分钟：Warringtonfire 按 EN 1365-1 测试承重墙，承载力、完整性、隔热性均保持至 264 分钟中止。水蒸气透湿改用 Lucideon EN ISO 12572 湿杯法报告（N26458）。耐火与透湿两份报告已放入下方下载区。CWFT：有机物含量不超过 1% 的无机制品可免测按 A1 分级，L0、N20、N30 需先确认成分。")+"""</p>
 </section>
 
 <section id="calc">
